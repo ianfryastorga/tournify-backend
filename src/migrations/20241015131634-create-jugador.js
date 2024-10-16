@@ -9,14 +9,12 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      ID_Jugador: {
-        type: Sequelize.INTEGER
-      },
       Nombre: {
         type: Sequelize.STRING
       },
       ID_Equipo: {
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
+        references: {model: 'Equipos', key: 'id'}
       },
       createdAt: {
         allowNull: false,

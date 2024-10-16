@@ -9,9 +9,6 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      ID_Torneo: {
-        type: Sequelize.INTEGER
-      },
       Nombre: {
         type: Sequelize.STRING
       },
@@ -28,7 +25,8 @@ module.exports = {
         type: Sequelize.STRING
       },
       ID_Organizador: {
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
+        references: {model: 'Usuarios', key: 'id'}
       },
       createdAt: {
         allowNull: false,

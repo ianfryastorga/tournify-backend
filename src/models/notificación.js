@@ -10,11 +10,13 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      // define association here
+      this.belongsTo(models.Usuario, {
+        foreignKey: 'ID_Usuario',
+      });
+      
     }
   }
   Notificación.init({
-    ID_Notificación: DataTypes.INTEGER,
     Mensaje: DataTypes.STRING,
     Fecha: DataTypes.STRING,
     ID_Usuario: DataTypes.INTEGER

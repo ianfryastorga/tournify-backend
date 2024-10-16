@@ -9,9 +9,6 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      ID_Notificación: {
-        type: Sequelize.INTEGER
-      },
       Mensaje: {
         type: Sequelize.STRING
       },
@@ -19,7 +16,8 @@ module.exports = {
         type: Sequelize.STRING
       },
       ID_Usuario: {
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
+        references: {model: 'Usuarios', key: 'id'}
       },
       createdAt: {
         allowNull: false,

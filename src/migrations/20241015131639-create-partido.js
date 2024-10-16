@@ -9,9 +9,6 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      ID_Partido: {
-        type: Sequelize.INTEGER
-      },
       Fecha: {
         type: Sequelize.DATE
       },
@@ -19,16 +16,19 @@ module.exports = {
         type: Sequelize.TIME
       },
       ID_Equipo1: {
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
+        references: {model: 'Equipos', key: 'id'}
       },
       ID_Equipo2: {
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
+        references: {model: 'Equipos', key: 'id'}
       },
       Resultado: {
         type: Sequelize.STRING
       },
       ID_Torneo: {
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
+        references: {model: 'Torneos', key: 'id'}
       },
       createdAt: {
         allowNull: false,
