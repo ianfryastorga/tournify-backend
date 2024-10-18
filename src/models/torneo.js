@@ -27,7 +27,8 @@ module.exports = (sequelize, DataTypes) => {
     Ubicación: DataTypes.STRING,
     Estado: DataTypes.STRING,
     Clasificación: DataTypes.STRING,
-    ID_Organizador: DataTypes.INTEGER
+    ID_Organizador: DataTypes.INTEGER,
+    Image: DataTypes.STRING,
   }, {
     sequelize,
     modelName: 'Torneo',

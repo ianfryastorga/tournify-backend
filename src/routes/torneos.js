@@ -5,7 +5,7 @@ dotenv.config();
 
 const router = new Router();
 
-router.post("torneos.signup", "/", async (ctx) => {
+router.post("torneos.create", "/", async (ctx) => {
     try {
         const torneo = await ctx.orm.Torneo.create(ctx.request.body);
         ctx.body = torneo;
@@ -31,6 +31,20 @@ router.get("torneos.show", "/:id", async (ctx) => {
         if (!torneo) {
             ctx.throw(404);
         }
+        ctx.body = torneo;
+        ctx.status = 200;
+    } catch (error) {
+        ctx.throw(400, error);
+    }
+});
+
+router.patch("torneos.update", "/:id", async (ctx) => {
+    try {
+        const torneo = await ctx.orm.Torneo.findByPk(ctx.params.id);
+        if (!torneo) {
+            ctx.throw(404);
+        }
+        await torneo.update(ctx.request.body);
         ctx.body = torneo;
         ctx.status = 200;
     } catch (error) {
