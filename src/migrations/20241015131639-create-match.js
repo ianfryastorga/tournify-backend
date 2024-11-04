@@ -2,22 +2,33 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('Notificacións', {
+    await queryInterface.createTable('Matches', {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      Mensaje: {
-        type: Sequelize.STRING
+      date: {
+        type: Sequelize.DATE
       },
-      Fecha: {
-        type: Sequelize.STRING
+      time: {
+        type: Sequelize.TIME
       },
-      ID_Usuario: {
+      team1Id: {
         type: Sequelize.INTEGER,
-        references: {model: 'Usuarios', key: 'id'}
+        references: { model: 'Teams', key: 'id' }
+      },
+      team2Id: {
+        type: Sequelize.INTEGER,
+        references: { model: 'Teams', key: 'id' }
+      },
+      result: {
+        type: Sequelize.STRING
+      },
+      tournamentId: {
+        type: Sequelize.INTEGER,
+        references: { model: 'Tournaments', key: 'id' }
       },
       createdAt: {
         allowNull: false,
@@ -30,6 +41,6 @@ module.exports = {
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('Notificacións');
+    await queryInterface.dropTable('Matches');
   }
 };

@@ -1,10 +1,12 @@
 const Router = require("koa-router");
-const usuarios = require("./routes/usuarios");
-const torneos = require("./routes/torneos");
+const users = require("./routes/users");
+const tournaments = require("./routes/tournaments");
+const matches = require("./routes/matches");
 
 const router = new Router();
 
-router.use("/usuarios", usuarios.routes());
-router.use("/torneos", torneos.routes());   
+router.use("/users", users.routes());
+router.use("/tournaments", tournaments.routes());
+router.use("/matches", matches.routes());
 
 module.exports = router;
