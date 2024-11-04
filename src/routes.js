@@ -4,8 +4,8 @@ const dotenv = require('dotenv');
 // import aurhentication routes
 const authentication = require('./routes/authentication');
 const users = require('./routes/users');
-const shops = require('./routes/shops');
-const likes = require('./routes/likes');
+const tournaments = require('./routes/tournaments');
+const matches = require('./routes/matches');
 
 dotenv.config();
 
@@ -14,8 +14,8 @@ const router = new Router();
 // Rutas
 router.use('/auth', authentication.routes());
 router.use('/users', users.routes());
-router.use('/shops', shops.routes());
-router.use('/likes', likes.routes());
+router.use("/tournaments", tournaments.routes());
+router.use("/matches", matches.routes());
 
 // Rutas protegidas
 router.use(jwtMiddleware({ secret: process.env.JWT_SECRET }));
