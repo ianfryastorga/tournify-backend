@@ -2,33 +2,33 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('Torneos', {
+    await queryInterface.createTable('Tournaments', {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      Nombre: {
+      name: {
         type: Sequelize.STRING
       },
-      Fecha: {
+      date: {
         type: Sequelize.DATE
       },
-      Ubicación: {
+      location: {
         type: Sequelize.STRING
       },
-      Estado: {
+      status: {
         type: Sequelize.STRING
       },
-      Clasificación: {
+      classification: {
         type: Sequelize.STRING
       },
-      ID_Organizador: {
+      organizerId: {
         type: Sequelize.INTEGER,
-        references: {model: 'Usuarios', key: 'id'}
+        references: { model: 'Users', key: 'id' }
       },
-      Image: {
+      image: {
         type: Sequelize.STRING
       },
       createdAt: {
@@ -42,6 +42,6 @@ module.exports = {
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('Torneos');
+    await queryInterface.dropTable('Tournaments');
   }
 };
