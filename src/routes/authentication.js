@@ -1,51 +1,61 @@
 const dotenv = require('dotenv');
 const jwt = require('jsonwebtoken');
 const Router = require('koa-router');
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 
 dotenv.config();
 
 const router = new Router();
 
-router.post('authentication.singup', '/singup', async (ctx) => {
+router.post('authentication.signup', '/signup', async (ctx) => {
   const authInfo = ctx.request.body;
 
-  let user = await ctx.orm.User.findOne({ where: { mail: authInfo.mail } });
-  const rut = await ctx.orm.User.findOne({ where: { rut: authInfo.rut } });
+  let user = await ctx.orm.User.findOne({ where: { email: authInfo.email } });
 
   if (user) {
-    ctx.body = { error: `Mail '${authInfo.mail}' already in use` };
+    ctx.body = { error: `Mail '${authInfo.email}' already in use` };
     ctx.status = 400;
     return;
   }
-  if (rut) {
-    ctx.body = { error: `rut '${authInfo.rut}' already in use` };
-    ctx.status = 400;
-    return;
-  }
+  
   // Validamos que el password cumpla con los requisitos
   if (!authInfo.password.match(/[a-z]/) || !authInfo.password.match(/[A-Z]/) || !authInfo.password.match(/[0-9]/) || !authInfo.password.match(/[@_.$!%*?&]/)) {
     ctx.body = { error: 'Password must contain at least 1 lowercase letter, 1 uppercase letter, 1 number and 1 special character (@_.$!%*?&)' };
     ctx.status = 400;
     return;
   }
+  console.log(authInfo);
   try {
+    console.log("1");
     const saltRounds = parseInt(process.env.SALT_ROUNDS, 10);
-    const hashPassword = await bcrypt.hash(authInfo.password, saltRounds);
+    console.log(saltRounds);
+    console.log("2");
+    
+    let hashPassword;
+    try {
+      hashPassword = await bcrypt.hash(authInfo.password, saltRounds);
+    } catch (error) {
+      ctx.throw(500, 'Error hashing password');
+    }
+
+    console.log("3");
+    console.log(hashPassword);
 
     user = await ctx.orm.User.create({
-      rut: authInfo.rut,
-      mail: authInfo.mail,
+      email: authInfo.email,
       password: hashPassword,
+      name: authInfo.name,
+      gender: authInfo.gender,
+      role: authInfo.role,
     });
   } catch (validationError) {
+    console.log(validationError);
     ctx.body = validationError;
     ctx.status = 400;
     return;
   }
   ctx.body = {
     userId: user.id,
-    rut: user.rut,
     mail: user.mail,
   };
   ctx.status = 201;
@@ -55,7 +65,7 @@ router.post('authentication', '/login', async (ctx) => {
   let user;
   const authInfo = ctx.request.body;
   try {
-    user = await ctx.orm.User.findOne({ where: { mail: authInfo.mail } });
+    user = await ctx.orm.User.findOne({ where: { email: authInfo.email } });
   } catch (error) {
     ctx.body = error;
     ctx.status = 400;
@@ -63,15 +73,14 @@ router.post('authentication', '/login', async (ctx) => {
   }
   // Validamos que el mail exista
   if (!user) {
-    ctx.body = { error: `Mail '${authInfo.mail}' not found` };
+    ctx.body = { error: `Mail '${authInfo.email}' not found` };
     ctx.status = 400;
     return;
   }
   const validPassword = await bcrypt.compare(authInfo.password, user.password);
   if (validPassword) {
     ctx.body = {
-      rut: user.rut,
-      mail: user.mail,
+      email: user.email,
     };
     ctx.status = 200;
   } else {
@@ -90,7 +99,6 @@ router.post('authentication', '/login', async (ctx) => {
   );
   ctx.body = {
     userId: user.id,
-    rut: user.rut,
     access_token: token,
     token_type: 'Bearer',
     expires_in: expirationTime,
