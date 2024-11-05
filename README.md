@@ -24,6 +24,11 @@ POSTGRES_DB=app_movil
 
 ## Endpoints disponibles (README actualizado: 17 Oct):
 ##### Puede que README no está actualizado y endpoint(s) que existe no está en la lista de abajo
+
+#### Auth:
+POST /signup
+POST /login
+
 #### Torneo:
 POST  
 GET  
