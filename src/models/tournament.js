@@ -1,36 +1,43 @@
-'use strict';
-const { Model } = require('sequelize');
+// Tournament.js
+"use strict";
+const { Model } = require("sequelize");
 
 module.exports = (sequelize, DataTypes) => {
   class Tournament extends Model {
     static associate(models) {
       this.belongsTo(models.User, {
-        foreignKey: 'organizer', // ID del organizador (User).
+        foreignKey: "organizer",
+        as: "Organizer",
       });
       this.hasMany(models.Team, {
-        foreignKey: 'id', // Corrección: ID de torneo en Team.
+        foreignKey: "tournamentId",
+        as: "Teams",
       });
       this.hasMany(models.Match, {
-        foreignKey: 'id', // Corrección: ID de torneo en Match.
+        foreignKey: "tournamentId", // Cambia a `tournamentId` en lugar de `tournamentSlug`
+        as: "Matches",
       });
     }
   }
 
-  Tournament.init({
-    name: DataTypes.STRING,
-    date: DataTypes.DATEONLY, // Usamos DATEONLY para solo almacenar la fecha.
-    location: DataTypes.STRING,
-    state: DataTypes.STRING, // Cambiado de `status` a `state`.
-    rol: DataTypes.STRING, // Nuevo campo para `rol`.
-    classification: DataTypes.STRING,
-    description: DataTypes.STRING, // Nuevo campo para `description`.
-    slug: DataTypes.STRING, // Nuevo campo para `slug`.
-    image: DataTypes.STRING,
-    organizer: DataTypes.STRING, // Nuevo campo para `organizer` como string en lugar de ID.
-  }, {
-    sequelize,
-    modelName: 'Tournament',
-  });
+  Tournament.init(
+    {
+      name: DataTypes.STRING,
+      date: DataTypes.DATEONLY,
+      location: DataTypes.STRING,
+      state: DataTypes.STRING,
+      rol: DataTypes.STRING,
+      classification: DataTypes.STRING,
+      description: DataTypes.STRING,
+      slug: DataTypes.STRING,
+      image: DataTypes.STRING,
+      organizer: DataTypes.INTEGER,
+    },
+    {
+      sequelize,
+      modelName: "Tournament",
+    }
+  );
 
   return Tournament;
 };

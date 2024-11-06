@@ -1,31 +1,40 @@
-'use strict';
-const {
-  Model
-} = require('sequelize');
+// Team.js
+"use strict";
+const { Model } = require("sequelize");
+
 module.exports = (sequelize, DataTypes) => {
   class Team extends Model {
     static associate(models) {
       this.belongsTo(models.Tournament, {
-        foreignKey: 'tournamentId', 
+        foreignKey: "tournamentId",
+        as: "Tournament",
       });
       this.hasMany(models.Player, {
-        foreignKey: 'id',
+        foreignKey: "teamId", // Clave foránea correcta en Player
+        as: "Players",
       });
       this.belongsTo(models.User, {
-        foreignKey: 'representativeId', 
+        foreignKey: "representativeId",
+        as: "Representative",
       });
       this.hasMany(models.Match, {
-        foreignKey: 'id',
+        foreignKey: "team1", // Usar `team1` o `team2` según la relación que representa
+        as: "MatchesAsTeam1",
       });
     }
   }
-  Team.init({
-    name: DataTypes.STRING,
-    representativeId: DataTypes.INTEGER, // ID of a user!
-    tournamentId: DataTypes.INTEGER
-  }, {
-    sequelize,
-    modelName: 'Team',
-  });
+
+  Team.init(
+    {
+      name: DataTypes.STRING,
+      representativeId: DataTypes.INTEGER,
+      tournamentId: DataTypes.INTEGER,
+    },
+    {
+      sequelize,
+      modelName: "Team",
+    }
+  );
+
   return Team;
 };
