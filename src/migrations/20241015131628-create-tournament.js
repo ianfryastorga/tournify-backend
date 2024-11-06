@@ -13,22 +13,30 @@ module.exports = {
         type: Sequelize.STRING
       },
       date: {
-        type: Sequelize.DATE
+        type: Sequelize.DATEONLY // Usamos DATEONLY para solo almacenar la fecha.
       },
       location: {
         type: Sequelize.STRING
       },
-      status: {
+      state: { // Cambiado de `status` a `state`.
+        type: Sequelize.STRING
+      },
+      rol: { // Nuevo campo `rol`.
         type: Sequelize.STRING
       },
       classification: {
         type: Sequelize.STRING
       },
-      organizerId: {
-        type: Sequelize.INTEGER,
-        references: { model: 'Users', key: 'id' }
+      description: { // Nuevo campo `description`.
+        type: Sequelize.STRING
+      },
+      slug: { // Nuevo campo `slug`.
+        type: Sequelize.STRING
       },
       image: {
+        type: Sequelize.STRING
+      },
+      organizer: { // Cambiado a `organizer` en lugar de `organizerId`.
         type: Sequelize.STRING
       },
       createdAt: {
@@ -41,6 +49,7 @@ module.exports = {
       }
     });
   },
+
   async down(queryInterface, Sequelize) {
     await queryInterface.dropTable('Tournaments');
   }
