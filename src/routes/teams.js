@@ -53,6 +53,9 @@ router.post("teams.add_user", "/add_user", async (ctx) => {
     }
 });
 
+
+
+
 router.get("teams.players", "/get_players/:id", async (ctx) => {
     try {
         const teamId = ctx.params.id;
@@ -87,15 +90,57 @@ router.get("teams.players", "/get_players/:id", async (ctx) => {
     }
 });
 
-router.get("teams.list", "/", async (ctx) => {
+// router.get("teams.list", "/", async (ctx) => {
+//     try {
+//         const teams = await ctx.orm.Team.findAll();
+//         ctx.body = teams;
+//         ctx.status = 200;
+//     } catch (error) {
+//         ctx.throw(400, error);
+//     }
+// });
+router.get("/teams_with_players", "/", async (ctx) => {
     try {
-        const teams = await ctx.orm.Team.findAll();
-        ctx.body = teams;
-        ctx.status = 200;
+      const teams = await ctx.orm.Team.findAll({
+        include: [{
+          model: ctx.orm.Player,
+          include: [{
+            model: ctx.orm.User,
+            attributes: ['name'] // Selecciona solo el nombre del usuario
+          }]
+        }]
+      });
+  
+      if (!teams) {
+        ctx.throw(404, 'No teams found');
+      }
+  
+      // Formatea la respuesta para incluir solo los atributos necesarios
+      const formattedTeams = teams.map(team => ({
+        id: team.id,
+        name: team.name,
+        captainId: team.captainId,
+        players: team.Players.map(player => player.User ? player.User.name : null), // Solo nombres de los jugadores
+        points: team.points,
+        matchesPlayed: team.matchesPlayed,
+        matchesWon: team.matchesWon,
+        matchesDrawn: team.matchesDrawn,
+        matchesLost: team.matchesLost,
+        goalsFor: team.goalsFor,
+        goalsAgainst: team.goalsAgainst,
+        goalDifference: team.goalDifference,
+        tournamentSlug: team.tournamentSlug,
+      }));
+  
+      ctx.body = formattedTeams;
+      ctx.status = 200;
+  
     } catch (error) {
-        ctx.throw(400, error);
+      ctx.throw(400, error);
     }
-});
+  });
+  
+  
 
 router.get("teams.show", "/:id", async (ctx) => {
     try {
