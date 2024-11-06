@@ -7,9 +7,59 @@ const router = new Router();
 
 router.post("tournaments.create", "/", async (ctx) => {
   try {
+    const { name, date, location, organizer } = ctx.request.body;
+
+    // Validar que los campos esenciales estén presentes
+    if (!name || !date || !location || !organizer) {
+      ctx.throw(
+        400,
+        "Fields 'name', 'date', 'location', and 'organizer' are required"
+      );
+    }
+
+    // Verificar que el organizador exista
+    const organizerUser = await ctx.orm.User.findByPk(organizer);
+    if (!organizerUser) {
+      ctx.throw(404, "Organizer not found");
+    }
+
+    // Crear el torneo si todas las validaciones pasaron
     const tournament = await ctx.orm.Tournament.create(ctx.request.body);
     ctx.body = tournament;
     ctx.status = 201;
+  } catch (error) {
+    ctx.throw(400, error);
+  }
+});
+
+router.post("tournaments.add_team", "/:tournament_id/add_team", async (ctx) => {
+  try {
+    const { team_id } = ctx.request.body;
+    const { tournament_id } = ctx.params;
+
+    // Verificar que el torneo exista
+    const tournament = await ctx.orm.Tournament.findByPk(tournament_id);
+    if (!tournament) {
+      ctx.throw(404, "Tournament not found");
+    }
+
+    // Verificar que el equipo exista
+    const team = await ctx.orm.Team.findByPk(team_id);
+    if (!team) {
+      ctx.throw(404, "Team not found");
+    }
+
+    // Verificar si el equipo ya está asociado al torneo
+    if (team.tournamentId === tournament.id) {
+      ctx.throw(400, "Team is already part of this tournament");
+    }
+
+    // Asignar el torneo al equipo
+    team.tournamentId = tournament.id;
+    await team.save();
+
+    ctx.body = { message: "Team added to tournament", team };
+    ctx.status = 200;
   } catch (error) {
     ctx.throw(400, error);
   }

@@ -122,4 +122,46 @@ router.patch("matches.update", "/:id", async (ctx) => {
   }
 });
 
+router.post("matches.add_event", "/:match_id/add_event", async (ctx) => {
+  try {
+    const { match_id } = ctx.params;
+    const { minute, type, player, team } = ctx.request.body;
+
+    // Verificar que el partido exista
+    const match = await ctx.orm.Match.findByPk(match_id);
+    if (!match) {
+      ctx.throw(404, "Match not found");
+    }
+
+    // Validar que los campos del evento estén presentes
+    if (minute === undefined || !type || !player || !team) {
+      ctx.throw(
+        400,
+        "Fields 'minute', 'type', 'player', and 'team' are required"
+      );
+    }
+
+    // Crear un nuevo evento
+    const newEvent = {
+      minute,
+      type,
+      player,
+      team,
+    };
+
+    // Agregar el nuevo evento a la lista de eventos del partido
+    const events = match.events || [];
+    events.push(newEvent);
+
+    // Actualizar el partido con la lista de eventos actualizada
+    match.events = events;
+    await match.save();
+
+    ctx.body = { message: "Event added to match", match };
+    ctx.status = 200;
+  } catch (error) {
+    ctx.throw(400, error);
+  }
+});
+
 module.exports = router;
