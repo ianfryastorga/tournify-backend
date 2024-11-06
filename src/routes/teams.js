@@ -35,7 +35,7 @@ router.post("teams.create", "/", async (ctx) => {
   }
 });
 
-router.post("teams.add_player", "/:id/add_player", async (ctx) => {
+router.post("teams.add_player", "/add_player", async (ctx) => {
   try {
     const { user_id, team_id } = ctx.request.body;
 
@@ -182,6 +182,38 @@ router.get("teams.by_captain", "/captain/:user_id", async (ctx) => {
     }
 
     ctx.body = team;
+    ctx.status = 200;
+  } catch (error) {
+    ctx.throw(400, error);
+  }
+});
+
+router.post("teams.remove_player", "/remove_player", async (ctx) => {
+  try {
+    const { user_id, team_id } = ctx.request.body;
+
+    // Verificar que el equipo exista
+    const team = await ctx.orm.Team.findByPk(team_id);
+    if (!team) {
+      ctx.throw(404, "Team not found");
+    }
+
+    // Verificar que el jugador esté en el equipo
+    const player = await ctx.orm.Player.findOne({
+      where: {
+        teamId: team_id,
+        userId: user_id,
+      },
+    });
+
+    if (!player) {
+      ctx.throw(404, "Player not found in this team");
+    }
+
+    // Eliminar el jugador del equipo
+    await player.destroy();
+
+    ctx.body = { message: "Player removed from team" };
     ctx.status = 200;
   } catch (error) {
     ctx.throw(400, error);
