@@ -7,11 +7,15 @@ module.exports = (sequelize, DataTypes) => {
       this.belongsTo(models.Team, {
         foreignKey: 'teamId',
       });
+      this.belongsTo(models.User, {
+        foreignKey: 'userId',
+      });
     }
   }
   Player.init({
     name: DataTypes.STRING,
-    teamId: DataTypes.INTEGER
+    teamId: DataTypes.INTEGER,
+    userId: DataTypes.INTEGER
   }, {
     sequelize,
     modelName: 'Player',

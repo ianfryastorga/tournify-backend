@@ -26,8 +26,8 @@ POSTGRES_DB=app_movil
 ##### Puede que README no está actualizado y endpoint(s) que existe no está en la lista de abajo
 
 #### Auth:
-POST /signup
-POST /login
+POST /signup  
+POST /login 
 
 #### Torneo:
 POST  
@@ -45,4 +45,9 @@ POST
 GET  
 GET /:id  
 
+#### Equipo:
+POST  
+GET 
+POST /add_user  
+GET /get_players/:id  
 
