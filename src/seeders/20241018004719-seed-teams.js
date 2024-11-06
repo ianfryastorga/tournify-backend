@@ -1,33 +1,66 @@
 module.exports = {
-  up: (queryInterface) => queryInterface.bulkInsert('Teams', [
-    {
-      name: 'MacroHard OnFire',
-      representativeId: 1, 
-      tournamentId: 3,
-      createdAt: new Date(),
-      updatedAt: new Date()
-    },
-    {
-      name: 'Creyentes de Dios',
-      representativeId: 2, 
-      tournamentId: 3,
-      createdAt: new Date(),
-      updatedAt: new Date()
-    },
-    {
-      name: 'Los Ateos',
-      representativeId: 3, 
-      tournamentId: 1,
-      createdAt: new Date(),
-      updatedAt: new Date()
-    },
-    {
-      name: 'Los Dormilones',
-      representativeId: 4, 
-      tournamentId: 2,
-      createdAt: new Date(),
-      updatedAt: new Date()
-    },
-  ]),
-  down: (queryInterface) => queryInterface.bulkDelete('Teams', null, {}),
-}
+  up: (queryInterface) =>
+    queryInterface.bulkInsert("Teams", [
+      {
+        name: "Ingeniería",
+        representativeId: 1,
+        tournamentId: 3,
+        points: 9,
+        matchesPlayed: 3,
+        matchesWon: 3,
+        matchesDrawn: 0,
+        matchesLost: 0,
+        goalsFor: 8,
+        goalsAgainst: 2,
+        goalDifference: 6,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+      {
+        name: "Medicina",
+        representativeId: 2,
+        tournamentId: 3,
+        points: 6,
+        matchesPlayed: 3,
+        matchesWon: 2,
+        matchesDrawn: 0,
+        matchesLost: 1,
+        goalsFor: 5,
+        goalsAgainst: 3,
+        goalDifference: 2,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+      {
+        name: "Derecho",
+        representativeId: 3,
+        tournamentId: 3,
+        points: 4,
+        matchesPlayed: 3,
+        matchesWon: 1,
+        matchesDrawn: 1,
+        matchesLost: 1,
+        goalsFor: 3,
+        goalsAgainst: 4,
+        goalDifference: -1,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+      {
+        name: "Los Dormilones",
+        representativeId: 4,
+        tournamentId: 3,
+        points: 1,
+        matchesPlayed: 3,
+        matchesWon: 0,
+        matchesDrawn: 1,
+        matchesLost: 2,
+        goalsFor: 2,
+        goalsAgainst: 6,
+        goalDifference: -4,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+    ]),
+  down: (queryInterface) => queryInterface.bulkDelete("Teams", null, {}),
+};

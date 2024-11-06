@@ -10,7 +10,7 @@ module.exports = (sequelize, DataTypes) => {
         as: "Tournament",
       });
       this.hasMany(models.Player, {
-        foreignKey: "teamId", // Clave foránea correcta en Player
+        foreignKey: "teamId",
         as: "Players",
       });
       this.belongsTo(models.User, {
@@ -18,7 +18,7 @@ module.exports = (sequelize, DataTypes) => {
         as: "Representative",
       });
       this.hasMany(models.Match, {
-        foreignKey: "team1", // Usar `team1` o `team2` según la relación que representa
+        foreignKey: "team1",
         as: "MatchesAsTeam1",
       });
     }
@@ -29,6 +29,38 @@ module.exports = (sequelize, DataTypes) => {
       name: DataTypes.STRING,
       representativeId: DataTypes.INTEGER,
       tournamentId: DataTypes.INTEGER,
+      points: {
+        type: DataTypes.INTEGER,
+        defaultValue: 0,
+      },
+      matchesPlayed: {
+        type: DataTypes.INTEGER,
+        defaultValue: 0,
+      },
+      matchesWon: {
+        type: DataTypes.INTEGER,
+        defaultValue: 0,
+      },
+      matchesDrawn: {
+        type: DataTypes.INTEGER,
+        defaultValue: 0,
+      },
+      matchesLost: {
+        type: DataTypes.INTEGER,
+        defaultValue: 0,
+      },
+      goalsFor: {
+        type: DataTypes.INTEGER,
+        defaultValue: 0,
+      },
+      goalsAgainst: {
+        type: DataTypes.INTEGER,
+        defaultValue: 0,
+      },
+      goalDifference: {
+        type: DataTypes.INTEGER,
+        defaultValue: 0,
+      },
     },
     {
       sequelize,
