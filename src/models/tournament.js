@@ -1,37 +1,36 @@
 'use strict';
-const {
-  Model
-} = require('sequelize');
+const { Model } = require('sequelize');
+
 module.exports = (sequelize, DataTypes) => {
   class Tournament extends Model {
-    /**
-     * Helper method for defining associations.
-     * This method is not a part of Sequelize lifecycle.
-     * The `models/index` file will call this method automatically.
-     */
     static associate(models) {
       this.belongsTo(models.User, {
-        foreignKey: 'organizerId', // This is the id of a user!
+        foreignKey: 'organizer', // ID del organizador (User).
       });
       this.hasMany(models.Team, {
-        foreignKey: 'id',
+        foreignKey: 'id', // Corrección: ID de torneo en Team.
       });
       this.hasMany(models.Match, {
-        foreignKey: 'id',
+        foreignKey: 'id', // Corrección: ID de torneo en Match.
       });
     }
   }
+
   Tournament.init({
     name: DataTypes.STRING,
-    date: DataTypes.DATE,
+    date: DataTypes.DATEONLY, // Usamos DATEONLY para solo almacenar la fecha.
     location: DataTypes.STRING,
-    status: DataTypes.STRING,
+    state: DataTypes.STRING, // Cambiado de `status` a `state`.
+    rol: DataTypes.STRING, // Nuevo campo para `rol`.
     classification: DataTypes.STRING,
-    organizerId: DataTypes.INTEGER,
+    description: DataTypes.STRING, // Nuevo campo para `description`.
+    slug: DataTypes.STRING, // Nuevo campo para `slug`.
     image: DataTypes.STRING,
+    organizer: DataTypes.STRING, // Nuevo campo para `organizer` como string en lugar de ID.
   }, {
     sequelize,
     modelName: 'Tournament',
   });
+
   return Tournament;
 };

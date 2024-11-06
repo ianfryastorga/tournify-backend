@@ -1,38 +1,48 @@
 module.exports = {
   up: (queryInterface) => queryInterface.bulkInsert('Tournaments', [
     {
-      name: 'Torneo de Fútbol',
-      date: '2024-11-30',
-      location: 'Estadio Nacional',
-      status: 'En curso',
-      classification: 'Fútbol',
-      organizerId: 1,
-      image: "https://example.com/images/product1.jpg", // Actualizar los links de imagen!!!
+      name: "Liga CAI UC",
+      date: "2024-06-15",
+      location: "Santiago, Chile",
+      state: "Disponible",
+      rol: "Participante",
+      classification: "Universitario",
+      description: "Torneo Universitario Ingeniería UC",
+      slug: "liga-cai-uc",
+      image: "liga_cai.png", // Suponiendo que se guarda el nombre del archivo de imagen
+      organizer: "Diego Astudillo",
       createdAt: new Date(),
-      updatedAt: new Date()
+      updatedAt: new Date(),
     },
     {
-      name: 'Torneo de Vóley',
-      date: '2024-12-01',
-      location: 'Estadio Nacional',
-      status: 'En curso',
-      classification: 'Vóley',
-      organizerId: 1,
-      image: "https://example.com/images/product2.jpg",
+      name: "UltraFutbol",
+      date: "2024-12-01",
+      location: "Santiago, Chile",
+      state: "Disponible",
+      rol: "Participante",
+      classification: "Amateur",
+      description: "Torneo corporativo CCU",
+      slug: "ultrapadel",
+      image: "ultrapadel.jpg",
+      organizer: "Francisco Campos",
       createdAt: new Date(),
-      updatedAt: new Date()
+      updatedAt: new Date(),
     },
     {
-      name: 'Torneo de Básquetbol',
-      date: '2023-10-01',
-      location: 'Estadio Nacional',
-      status: 'Terminado',
-      classification: 'Básquetbol',
-      organizerId: 1,
-      image: "https://example.com/images/product3.jpg",
+      name: "Torneo Primavera",
+      date: "2024-09-20",
+      location: "Valparaíso, Chile",
+      state: "En curso",
+      rol: "Administrador",
+      classification: "Semi-profesional",
+      description: "Competencia interuniversitaria de primavera",
+      slug: "torneo-primavera",
+      image: "torneo_primavera.png",
+      organizer: "María González",
       createdAt: new Date(),
-      updatedAt: new Date()
+      updatedAt: new Date(),
     },
   ]),
+
   down: (queryInterface) => queryInterface.bulkDelete('Tournaments', null, {}),
-}
+};

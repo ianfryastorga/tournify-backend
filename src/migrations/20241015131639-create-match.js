@@ -10,25 +10,33 @@ module.exports = {
         type: Sequelize.INTEGER
       },
       date: {
-        type: Sequelize.DATE
+        type: Sequelize.DATEONLY // Usamos DATEONLY para solo almacenar la fecha.
       },
       time: {
         type: Sequelize.TIME
       },
-      team1Id: {
+      team1: {
         type: Sequelize.INTEGER,
         references: { model: 'Teams', key: 'id' }
       },
-      team2Id: {
+      team2: {
         type: Sequelize.INTEGER,
         references: { model: 'Teams', key: 'id' }
       },
       result: {
         type: Sequelize.STRING
       },
-      tournamentId: {
-        type: Sequelize.INTEGER,
-        references: { model: 'Tournaments', key: 'id' }
+      tournamentSlug: {
+        type: Sequelize.STRING // Usamos STRING para el slug en lugar de un ID numérico.
+      },
+      status: {
+        type: Sequelize.STRING,
+        allowNull: false,
+        defaultValue: 'Pendiente' // Valor predeterminado en caso de que el estado no esté definido.
+      },
+      events: {
+        type: Sequelize.JSON, // Campo JSON para almacenar los eventos del partido.
+        defaultValue: [] // Asignamos una lista vacía como valor predeterminado.
       },
       createdAt: {
         allowNull: false,
@@ -40,6 +48,7 @@ module.exports = {
       }
     });
   },
+  
   async down(queryInterface, Sequelize) {
     await queryInterface.dropTable('Matches');
   }
