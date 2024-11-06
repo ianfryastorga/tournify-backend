@@ -12,7 +12,7 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: 'id',
       });
       this.belongsTo(models.User, {
-        foreignKey: 'representativeId', 
+        foreignKey: 'captainId', 
       });
       this.hasMany(models.Match, {
         foreignKey: 'id',
@@ -21,8 +21,17 @@ module.exports = (sequelize, DataTypes) => {
   }
   Team.init({
     name: DataTypes.STRING,
-    representativeId: DataTypes.INTEGER, // ID of a user!
-    tournamentId: DataTypes.INTEGER
+    captainId: DataTypes.INTEGER, // ID of a user!
+    tournamentId: DataTypes.INTEGER,
+    points: DataTypes.INTEGER,
+    matchesPlayed: DataTypes.INTEGER,
+    matchesWon: DataTypes.INTEGER,
+    matchesDrawn: DataTypes.INTEGER,
+    matchesLost: DataTypes.INTEGER,
+    goalsFor: DataTypes.INTEGER,
+    goalsAgainst: DataTypes.INTEGER,
+    goalDifference: DataTypes.INTEGER,
+    tournamentSlug: DataTypes.STRING
   }, {
     sequelize,
     modelName: 'Team',
