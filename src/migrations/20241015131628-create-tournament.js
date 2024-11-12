@@ -19,32 +19,27 @@ module.exports = {
         type: Sequelize.STRING,
       },
       state: {
-        // Cambiado de `status` a `state`.
         type: Sequelize.STRING,
       },
       rol: {
-        // Nuevo campo `rol`.
         type: Sequelize.STRING,
       },
       classification: {
         type: Sequelize.STRING,
       },
       description: {
-        // Nuevo campo `description`.
         type: Sequelize.STRING,
       },
       slug: {
-        // Nuevo campo `slug`.
         type: Sequelize.STRING,
       },
       image: {
         type: Sequelize.STRING,
       },
       organizer: {
-        // Cambiado a INTEGER para referenciar a Users.id
         type: Sequelize.INTEGER,
         references: {
-          model: "Users", // Hace referencia a la tabla Users
+          model: "Users", 
           key: "id",
         },
         onUpdate: "CASCADE",

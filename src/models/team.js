@@ -13,6 +13,9 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: "teamId",
         as: "Players",
       });
+      this.hasOne(models.TeamTeamRegistration, {
+        foreignKey: "teamID",
+      });
       this.belongsTo(models.User, {
         foreignKey: "representativeId",
         as: "Representative",
@@ -60,6 +63,10 @@ module.exports = (sequelize, DataTypes) => {
       goalDifference: {
         type: DataTypes.INTEGER,
         defaultValue: 0,
+      },
+      tournamentSlug: {
+        type: DataTypes.STRING,
+        allowNull: false,
       },
     },
     {
