@@ -5,7 +5,6 @@ dotenv.config();
 
 const router = new Router();
 
-// Endpoint para listar todas las inscripciones de equipo
 router.get("teamregistrations.list", "/", async (ctx) => {
     try {
         const teamRegistrations = await ctx.orm.TeamRegistration.findAll();
