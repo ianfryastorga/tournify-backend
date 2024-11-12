@@ -12,8 +12,7 @@ module.exports = {
       goalsFor: 8,
       goalsAgainst: 2,
       goalDifference: 6,
-      tournamentSlug: 'liga-cai-uc',
-      tournamentId: 1,
+      tournamentSlug: 'torneo-primavera',
       createdAt: new Date(),
       updatedAt: new Date()
     },
@@ -29,15 +28,14 @@ module.exports = {
       goalsFor: 5,
       goalsAgainst: 3,
       goalDifference: 2,
-      tournamentSlug: 'liga-cai-uc',
-      tournamentId: 1,
+      tournamentSlug: 'torneo-primavera',
       createdAt: new Date(),
       updatedAt: new Date()
     },
     {
       name: 'Derecho',
       captainId: 2,
-      tournamentId: 3,
+      tournamentId: 1,
       points: 4,
       matchesPlayed: 3,
       matchesWon: 1,
@@ -53,7 +51,7 @@ module.exports = {
     {
       name: 'Arquitectura',
       captainId: 4,
-      tournamentId: 3,
+      tournamentId: 1,
       points: 1,
       matchesPlayed: 3,
       matchesWon: 0,

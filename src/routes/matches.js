@@ -72,6 +72,23 @@ router.get("matches.show", "/:id", async (ctx) => {
   }
 });
 
+router.get("matches.byTournamentSlug", "/tournamentSlug/:slug", async (ctx) => {
+  try {
+    const { slug } = ctx.params;
+
+    const tournament = await ctx.orm.Tournament.findOne({ where: { slug } });
+    if (!tournament) {
+      ctx.throw(404, "Tournament not found");
+    }
+
+    const matches = await ctx.orm.Match.findAll({ where: { tournamentId: tournament.id } });
+    ctx.body = matches;
+    ctx.status = 200;
+  } catch (error) {
+    ctx.throw(400, error);
+  }
+});
+
 router.patch("matches.update", "/:id", async (ctx) => {
   try {
     const matchId = ctx.params.id;

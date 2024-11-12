@@ -220,4 +220,22 @@ router.post("teams.remove_player", "/remove_player", async (ctx) => {
   }
 });
 
+router.get("teams.by_tournament_slug", "/tournamentSlug/:slug", async (ctx) => {
+    try {
+        const { slug } = ctx.params;
+        const tournament = await ctx.orm.Tournament.findOne({ where: { slug } });
+        if (!tournament) {
+            ctx.throw(404, "Tournament not found");
+        }
+        const teams = await ctx.orm.Team.findAll({
+            where: { tournamentId: tournament.id },
+        });
+
+        ctx.body = teams;
+        ctx.status = 200;
+    } catch (error) {
+        ctx.throw(400, error);
+    }
+});
+
 module.exports = router;

@@ -7,7 +7,7 @@ module.exports = {
         team1: 1, // ID del equipo MacroHard OnFire
         team2: 2, // ID del equipo Creyentes de Dios
         result: "2-1",
-        tournamentId: 1, // Cambiado de `tournamentSlug` a `tournamentId`, usa el ID de "Liga CAI UC"
+        tournamentId: 2, // Cambiado de `tournamentSlug` a `tournamentId`, usa el ID de "Liga CAI UC"
         status: "Finalizado",
         tournamentSlug: 'liga-cai-uc',
         events: JSON.stringify([
