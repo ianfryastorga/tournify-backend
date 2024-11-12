@@ -238,4 +238,28 @@ router.get("teams.by_tournament_slug", "/tournamentSlug/:slug", async (ctx) => {
     }
 });
 
+router.get("teams.byTournamentSlug", "/tournamentSlug/accepted/:slug", async (ctx) => {
+    try {
+        const { slug } = ctx.params;
+        const tournament = await ctx.orm.Tournament.findOne({ where: { slug } });
+        if (!tournament) {
+            ctx.throw(404, "Tournament not found");
+        }
+        const acceptedRegistrations = await ctx.orm.TeamRegistration.findAll({
+            where: {
+                tournamentSlug: slug,
+                status: "Aceptado",
+            },
+        });
+        const teamIds = acceptedRegistrations.map((reg) => reg.teamId);
+        const teams = await ctx.orm.Team.findAll({
+            where: { id: teamIds },
+        });
+        ctx.body = teams;
+        ctx.status = 200;
+    } catch (error) {
+        ctx.throw(400, `Error fetching accepted teams by tournament: ${error.message}`);
+    }
+});
+
 module.exports = router;
