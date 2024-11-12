@@ -13,9 +13,6 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: "teamId",
         as: "Players",
       });
-      this.hasOne(models.TeamRegistration, {
-        foreignKey: "teamID",
-      });
       this.belongsTo(models.User, {
         foreignKey: "representativeId",
         as: "Representative",

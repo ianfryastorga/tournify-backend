@@ -7,6 +7,7 @@ const users = require('./routes/users');
 const tournaments = require('./routes/tournaments');
 const matches = require('./routes/matches');
 const teams = require('./routes/teams');
+const teamregistrations = require('./routes/teamregistrations');
 
 dotenv.config();
 
@@ -18,6 +19,7 @@ router.use('/users', users.routes());
 router.use("/tournaments", tournaments.routes());
 router.use("/matches", matches.routes());
 router.use("/teams", teams.routes());
+router.use("/teamregistrations", teamregistrations.routes());
 
 // Rutas protegidas
 router.use(jwtMiddleware({ secret: process.env.JWT_SECRET }));
