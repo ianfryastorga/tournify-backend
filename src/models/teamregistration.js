@@ -12,8 +12,11 @@ module.exports = (sequelize, DataTypes) => {
   }
   TeamRegistration.init({
     teamId: DataTypes.INTEGER,
-    tournamentSlug: DataTypes.BOOLEAN,
-    status: DataTypes.STRING
+    tournamentSlug: DataTypes.STRING,
+    status: {
+      type: DataTypes.ENUM('Pendiente', 'Aceptado', 'Rechazado'), 
+      allowNull: false,
+    }
   }, {
     sequelize,
     modelName: 'TeamRegistration',

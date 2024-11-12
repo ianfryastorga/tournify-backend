@@ -2,8 +2,8 @@ module.exports = {
   up: (queryInterface) => queryInterface.bulkInsert('Teams', [
     {
       name: 'Ingeniería',
-      captainId: 2,  // Ajustado para coincidir con el ID en la tabla de usuarios
-      tournamentId: 3,  // Ajusta según el ID del torneo 'liga-cai-uc'
+      captainId: 2,  
+      tournamentId: 3,
       points: 9,
       matchesPlayed: 3,
       matchesWon: 3,
@@ -13,12 +13,13 @@ module.exports = {
       goalsAgainst: 2,
       goalDifference: 6,
       tournamentSlug: 'liga-cai-uc',
+      tournamentId: 1,
       createdAt: new Date(),
       updatedAt: new Date()
     },
     {
       name: 'Medicina',
-      captainId: 5,  // Ajustado para coincidir con el ID en la tabla de usuarios
+      captainId: 3,  
       tournamentId: 3,
       points: 6,
       matchesPlayed: 3,
@@ -29,12 +30,13 @@ module.exports = {
       goalsAgainst: 3,
       goalDifference: 2,
       tournamentSlug: 'liga-cai-uc',
+      tournamentId: 1,
       createdAt: new Date(),
       updatedAt: new Date()
     },
     {
       name: 'Derecho',
-      captainId: 8,
+      captainId: 2,
       tournamentId: 3,
       points: 4,
       matchesPlayed: 3,
@@ -50,7 +52,7 @@ module.exports = {
     },
     {
       name: 'Arquitectura',
-      captainId: 11,
+      captainId: 4,
       tournamentId: 3,
       points: 1,
       matchesPlayed: 3,

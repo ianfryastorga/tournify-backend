@@ -12,6 +12,10 @@ module.exports = {
       name: {
         type: Sequelize.STRING,
       },
+      captainId: {
+        type: Sequelize.INTEGER,
+        references: { model: "Users", key: "id" },
+      },
       representativeId: {
         type: Sequelize.INTEGER,
         references: { model: "Users", key: "id" },

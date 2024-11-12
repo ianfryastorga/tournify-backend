@@ -9,6 +9,7 @@ module.exports = {
         result: "2-1",
         tournamentId: 1, // Cambiado de `tournamentSlug` a `tournamentId`, usa el ID de "Liga CAI UC"
         status: "Finalizado",
+        tournamentSlug: 'liga-cai-uc',
         events: JSON.stringify([
           {
             minute: 10,
@@ -54,33 +55,11 @@ module.exports = {
             team: "Los Dormilones",
           },
         ]),
+        tournamentSlug: 'liga-cai-uc',
         createdAt: new Date(),
         updatedAt: new Date(),
       },
-      {
-        date: "2024-07-20",
-        time: "15:00:00",
-        team1: 1, // ID de MacroHard OnFire
-        team2: 4, // ID de Los Dormilones
-        result: "",
-        tournamentId: 1, // Usa el ID de "Liga CAI UC"
-        status: "Pendiente",
-        events: JSON.stringify([]),
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      },
-      {
-        date: "2024-07-22",
-        time: "17:00:00",
-        team1: 2, // ID de Creyentes de Dios
-        team2: 3, // ID de Los Ateos
-        result: "",
-        tournamentId: 1, // Usa el ID de "Liga CAI UC"
-        status: "Pendiente",
-        events: JSON.stringify([]),
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      },
+    
     ]),
 
   down: (queryInterface) => queryInterface.bulkDelete("Matches", null, {}),

@@ -13,7 +13,7 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: "teamId",
         as: "Players",
       });
-      this.hasOne(models.TeamTeamRegistration, {
+      this.hasOne(models.TeamRegistration, {
         foreignKey: "teamID",
       });
       this.belongsTo(models.User, {
@@ -30,6 +30,7 @@ module.exports = (sequelize, DataTypes) => {
   Team.init(
     {
       name: DataTypes.STRING,
+      captainId: DataTypes.INTEGER,
       representativeId: DataTypes.INTEGER,
       tournamentId: DataTypes.INTEGER,
       points: {

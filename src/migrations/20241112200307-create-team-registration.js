@@ -14,11 +14,12 @@ module.exports = {
         references: { model: 'Teams', key: 'id' }
       },
       tournamentSlug: {
-        type: Sequelize.BOOLEAN,
+        type: Sequelize.STRING,
         references: { model: 'Tournaments', key: 'slug' }
       },
       status: {
-        type: Sequelize.STRING
+        type: Sequelize.ENUM('Pendiente', 'Aceptado', 'Rechazado'),
+        allowNull: false,
       },
       createdAt: {
         allowNull: false,

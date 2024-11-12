@@ -25,7 +25,8 @@ module.exports = (sequelize, DataTypes) => {
       team1: DataTypes.INTEGER,
       team2: DataTypes.INTEGER,
       result: DataTypes.STRING,
-      tournamentId: DataTypes.INTEGER, // `tournamentId` en lugar de `tournamentSlug`
+      tournamentId: DataTypes.INTEGER, 
+      tournamentSlug: DataTypes.STRING, 
       status: {
         type: DataTypes.STRING,
         allowNull: false,

@@ -17,6 +17,10 @@ module.exports = {
         type: Sequelize.INTEGER,
         references: { model: "Users", key: "id" },
       },
+      tournamentSlug: {
+        type: Sequelize.STRING,
+        references: { model: "Tournaments", key: "slug" },
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,
