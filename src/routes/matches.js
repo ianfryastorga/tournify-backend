@@ -156,8 +156,20 @@ router.post("matches.add_event", "/:match_id/add_event", async (ctx) => {
     const events = match.events || [];
     events.push(newEvent);
 
+    console.log("EVENTS", events);
+
     match.events = events;
-    await match.save();
+
+    console.log("MATCH", match);
+
+    // await match.save();
+
+    await ctx.orm.Match.update(
+      { events }, // este es el array actualizado
+      { where: { id: match_id } }
+    );
+
+    console.log("MATCH AFTER SAVE", match);
 
     ctx.body = { message: "Event added to match", match };
     ctx.status = 200;
