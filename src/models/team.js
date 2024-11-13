@@ -27,6 +27,7 @@ module.exports = (sequelize, DataTypes) => {
   Team.init(
     {
       name: DataTypes.STRING,
+      captainId: DataTypes.INTEGER,
       representativeId: DataTypes.INTEGER,
       tournamentId: DataTypes.INTEGER,
       points: {
@@ -60,6 +61,10 @@ module.exports = (sequelize, DataTypes) => {
       goalDifference: {
         type: DataTypes.INTEGER,
         defaultValue: 0,
+      },
+      tournamentSlug: {
+        type: DataTypes.STRING,
+        allowNull: false,
       },
     },
     {

@@ -29,7 +29,7 @@ module.exports = (sequelize, DataTypes) => {
       rol: DataTypes.STRING,
       classification: DataTypes.STRING,
       description: DataTypes.STRING,
-      slug: DataTypes.STRING,
+      slug: DataTypes.STRING, 
       image: DataTypes.STRING,
       organizer: DataTypes.INTEGER,
     },

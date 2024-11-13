@@ -45,6 +45,13 @@ module.exports = {
         type: Sequelize.JSON,
         defaultValue: [],
       },
+      tournamentSlug: {
+        type: Sequelize.STRING,
+        references : {
+          model: "Tournaments",
+          key: "slug",
+        },
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,

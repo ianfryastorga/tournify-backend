@@ -9,7 +9,7 @@ module.exports = {
       classification: "Universitario",
       description: "Torneo Universitario Ingeniería UC",
       slug: "liga-cai-uc",
-      image: "liga_cai.png", // Suponiendo que se guarda el nombre del archivo de imagen
+      image: "liga_cai.png", 
       organizer: 1,
       createdAt: new Date(),
       updatedAt: new Date(),

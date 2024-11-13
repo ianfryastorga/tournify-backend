@@ -12,6 +12,10 @@ module.exports = {
       name: {
         type: Sequelize.STRING,
       },
+      captainId: {
+        type: Sequelize.INTEGER,
+        references: { model: "Users", key: "id" },
+      },
       representativeId: {
         type: Sequelize.INTEGER,
         references: { model: "Users", key: "id" },
@@ -51,6 +55,11 @@ module.exports = {
       goalDifference: {
         type: Sequelize.INTEGER,
         defaultValue: 0,
+      },
+      tournamentSlug: {
+        type: Sequelize.STRING,
+        allowNull: false,
+        references: { model: "Tournaments", key: "slug" },
       },
       createdAt: {
         allowNull: false,

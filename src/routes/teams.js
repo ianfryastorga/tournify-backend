@@ -9,24 +9,19 @@ router.post("teams.create", "/", async (ctx) => {
   try {
     const { name, representativeId, tournamentId } = ctx.request.body;
 
-    // Validar que el nombre esté presente
     if (!name) {
       ctx.throw(400, "Team name is required");
     }
-
-    // Verificar que el representante exista
     const representative = await ctx.orm.User.findByPk(representativeId);
     if (!representative) {
       ctx.throw(404, "Representative not found");
     }
 
-    // Verificar que el torneo exista
     const tournament = await ctx.orm.Tournament.findByPk(tournamentId);
     if (!tournament) {
       ctx.throw(404, "Tournament not found");
     }
 
-    // Crear el equipo si todas las validaciones pasaron
     const team = await ctx.orm.Team.create(ctx.request.body);
     ctx.body = team;
     ctx.status = 201;
@@ -39,19 +34,16 @@ router.post("teams.add_player", "/add_player", async (ctx) => {
   try {
     const { user_id, team_id } = ctx.request.body;
 
-    // Verificar que el equipo exista
     const team = await ctx.orm.Team.findByPk(team_id);
     if (!team) {
       ctx.throw(404, "Team not found");
     }
 
-    // Verificar que el usuario exista
     const user = await ctx.orm.User.findByPk(user_id);
     if (!user) {
       ctx.throw(404, "User not found");
     }
 
-    // Verificar si el jugador ya está en el equipo
     const existingPlayer = await ctx.orm.Player.findOne({
       where: {
         teamId: team_id,
@@ -63,7 +55,6 @@ router.post("teams.add_player", "/add_player", async (ctx) => {
       ctx.throw(400, "User is already a player in this team");
     }
 
-    // Crear el jugador y asociarlo al equipo
     const newPlayer = await ctx.orm.Player.create({
       teamId: team_id,
       userId: user_id,
@@ -82,11 +73,11 @@ router.get("teams.players", "/:id/players", async (ctx) => {
       include: [
         {
           model: ctx.orm.Player,
-          as: "Players", // Especifica el alias aquí
+          as: "Players", 
           include: [
             {
               model: ctx.orm.User,
-              attributes: ["id", "name", "email"], // Solo incluir los atributos necesarios
+              attributes: ["id", "name", "email"], 
             },
           ],
         },
@@ -97,7 +88,7 @@ router.get("teams.players", "/:id/players", async (ctx) => {
       ctx.throw(404, "Team not found");
     }
 
-    ctx.body = team.Players.map((player) => player.User); // Retornar solo los usuarios asociados a los jugadores
+    ctx.body = team.Players.map((player) => player.User); 
     ctx.status = 200;
   } catch (error) {
     ctx.throw(400, error);
@@ -131,16 +122,14 @@ router.patch("teams.update", "/:id", async (ctx) => {
   try {
     const teamId = ctx.params.id;
 
-    // Verificar que el equipo exista
     const team = await ctx.orm.Team.findByPk(teamId);
     if (!team) {
       ctx.throw(404, "Team not found");
     }
 
-    // Actualizar solo los campos enviados en el cuerpo de la solicitud
     await team.update(ctx.request.body);
 
-    ctx.body = team; // Retornar el equipo actualizado
+    ctx.body = team;  
     ctx.status = 200;
   } catch (error) {
     ctx.throw(400, error);
@@ -151,7 +140,6 @@ router.get("teams.by_captain", "/captain/:user_id", async (ctx) => {
   try {
     const { user_id } = ctx.params;
 
-    // Verificar si el usuario es un capitán
     const user = await ctx.orm.User.findByPk(user_id);
     if (!user) {
       ctx.throw(404, "User not found");
@@ -160,7 +148,6 @@ router.get("teams.by_captain", "/captain/:user_id", async (ctx) => {
       ctx.throw(400, "User is not a captain");
     }
 
-    // Obtener el equipo donde el usuario es el representante (capitán)
     const team = await ctx.orm.Team.findOne({
       where: { representativeId: user_id },
       include: [
@@ -191,33 +178,67 @@ router.get("teams.by_captain", "/captain/:user_id", async (ctx) => {
 router.post("teams.remove_player", "/remove_player", async (ctx) => {
   try {
     const { user_id, team_id } = ctx.request.body;
-
-    // Verificar que el equipo exista
     const team = await ctx.orm.Team.findByPk(team_id);
     if (!team) {
       ctx.throw(404, "Team not found");
     }
-
-    // Verificar que el jugador esté en el equipo
     const player = await ctx.orm.Player.findOne({
       where: {
         teamId: team_id,
         userId: user_id,
       },
     });
-
     if (!player) {
       ctx.throw(404, "Player not found in this team");
     }
-
-    // Eliminar el jugador del equipo
     await player.destroy();
-
     ctx.body = { message: "Player removed from team" };
     ctx.status = 200;
   } catch (error) {
     ctx.throw(400, error);
   }
+});
+
+router.get("teams.by_tournament_slug", "/tournamentSlug/:slug", async (ctx) => {
+    try {
+        const { slug } = ctx.params;
+        const tournament = await ctx.orm.Tournament.findOne({ where: { slug } });
+        if (!tournament) {
+            ctx.throw(404, "Tournament not found");
+        }
+        const teams = await ctx.orm.Team.findAll({
+            where: { tournamentId: tournament.id },
+        });
+
+        ctx.body = teams;
+        ctx.status = 200;
+    } catch (error) {
+        ctx.throw(400, error);
+    }
+});
+
+router.get("teams.byTournamentSlug", "/tournamentSlug/accepted/:slug", async (ctx) => {
+    try {
+        const { slug } = ctx.params;
+        const tournament = await ctx.orm.Tournament.findOne({ where: { slug } });
+        if (!tournament) {
+            ctx.throw(404, "Tournament not found");
+        }
+        const acceptedRegistrations = await ctx.orm.TeamRegistration.findAll({
+            where: {
+                tournamentSlug: slug,
+                status: "Aceptado",
+            },
+        });
+        const teamIds = acceptedRegistrations.map((reg) => reg.teamId);
+        const teams = await ctx.orm.Team.findAll({
+            where: { id: teamIds },
+        });
+        ctx.body = teams;
+        ctx.status = 200;
+    } catch (error) {
+        ctx.throw(400, `Error fetching accepted teams by tournament: ${error.message}`);
+    }
 });
 
 module.exports = router;
