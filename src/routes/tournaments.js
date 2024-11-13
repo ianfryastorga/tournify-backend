@@ -70,6 +70,7 @@ router.get("tournaments.list", "/", async (ctx) => {
 
 router.get("tournaments.show", "/:id", async (ctx) => {
   try {
+    console.log(ctx.params);
     const tournament = await ctx.orm.Tournament.findByPk(ctx.params.id, {
       include: [
         {
@@ -100,6 +101,7 @@ router.get("tournaments.show", "/:id", async (ctx) => {
     ctx.body = tournament;
     ctx.status = 200;
   } catch (error) {
+    console.log(error);
     ctx.throw(400, error);
   }
 });

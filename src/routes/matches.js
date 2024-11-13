@@ -66,17 +66,19 @@ router.get("matches.show", "/:id", async (ctx) => {
   }
 });
 
-router.get("matches.byTournamentSlug", "/tournamentSlug/:slug", async (ctx) => {
+router.get("matches.byTournamentSlug", "/tournament/:slug", async (ctx) => {
   try {
-    const { slug } = ctx.params;
+    const id = ctx.params.slug;
+    console.log("ID", id);
 
-    const tournament = await ctx.orm.Tournament.findOne({ where: { slug } });
+    const tournament = await ctx.orm.Tournament.findOne({ where: { id: id } });
     if (!tournament) {
       ctx.throw(404, "Tournament not found");
     }
 
     const matches = await ctx.orm.Match.findAll({ where: { tournamentId: tournament.id } });
     ctx.body = matches;
+    console.log("MATCHES", matches);
     ctx.status = 200;
   } catch (error) {
     ctx.throw(400, error);

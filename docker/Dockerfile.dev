@@ -4,10 +4,10 @@ WORKDIR /app
 
 COPY package.json ./
 
-RUN npm install
+RUN yarn install
 
 # Instalar nodemon globalmente
-RUN npm install -g nodemon
+RUN yarn global add nodemon
 
 # Copiar el resto de los archivos necesarios
 COPY . .

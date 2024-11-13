@@ -201,14 +201,16 @@ router.post("teams.remove_player", "/remove_player", async (ctx) => {
 
 router.get("teams.by_tournament_slug", "/tournamentSlug/:slug", async (ctx) => {
     try {
-        const { slug } = ctx.params;
-        const tournament = await ctx.orm.Tournament.findOne({ where: { slug } });
+        const slug = ctx.params.slug;
+        console.log("ID", slug);
+        const tournament = await ctx.orm.Tournament.findOne({ where: { id: slug } });
         if (!tournament) {
             ctx.throw(404, "Tournament not found");
         }
         const teams = await ctx.orm.Team.findAll({
             where: { tournamentId: tournament.id },
         });
+        console.log(teams);
 
         ctx.body = teams;
         ctx.status = 200;
@@ -220,7 +222,7 @@ router.get("teams.by_tournament_slug", "/tournamentSlug/:slug", async (ctx) => {
 router.get("teams.byTournamentSlug", "/tournamentSlug/accepted/:slug", async (ctx) => {
     try {
         const { slug } = ctx.params;
-        const tournament = await ctx.orm.Tournament.findOne({ where: { slug } });
+        const tournament = await ctx.orm.Tournament.findOne({ where: { id: slug } });
         if (!tournament) {
             ctx.throw(404, "Tournament not found");
         }
