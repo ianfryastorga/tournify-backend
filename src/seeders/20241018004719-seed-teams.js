@@ -2,7 +2,7 @@ module.exports = {
   up: (queryInterface) => queryInterface.bulkInsert('Teams', [
     {
       name: 'Ingeniería',
-      captainId: 2,  
+      captainId: 1,  
       tournamentId: 3,
       points: 9,
       matchesPlayed: 3,

@@ -149,7 +149,7 @@ router.get("teams.by_captain", "/captain/:user_id", async (ctx) => {
     }
 
     const team = await ctx.orm.Team.findOne({
-      where: { representativeId: user_id },
+      where: { captainId: user_id },
       include: [
         {
           model: ctx.orm.Player,
