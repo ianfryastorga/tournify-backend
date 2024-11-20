@@ -1,4 +1,3 @@
-// Team.js
 "use strict";
 const { Model } = require("sequelize");
 
@@ -14,8 +13,8 @@ module.exports = (sequelize, DataTypes) => {
         as: "Players",
       });
       this.belongsTo(models.User, {
-        foreignKey: "representativeId",
-        as: "Representative",
+        foreignKey: "captainId",
+        as: "Captain",
       });
       this.hasMany(models.Match, {
         foreignKey: "team1",
@@ -28,7 +27,6 @@ module.exports = (sequelize, DataTypes) => {
     {
       name: DataTypes.STRING,
       captainId: DataTypes.INTEGER,
-      representativeId: DataTypes.INTEGER,
       tournamentId: DataTypes.INTEGER,
       points: {
         type: DataTypes.INTEGER,
@@ -61,10 +59,6 @@ module.exports = (sequelize, DataTypes) => {
       goalDifference: {
         type: DataTypes.INTEGER,
         defaultValue: 0,
-      },
-      tournamentSlug: {
-        type: DataTypes.STRING,
-        allowNull: false,
       },
     },
     {

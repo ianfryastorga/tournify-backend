@@ -16,6 +16,10 @@ module.exports = (sequelize, DataTypes) => {
     {
       teamId: DataTypes.INTEGER,
       userId: DataTypes.INTEGER,
+      goals: {
+        type: DataTypes.INTEGER,
+        defaultValue: 0,
+      },
     },
     {
       sequelize,

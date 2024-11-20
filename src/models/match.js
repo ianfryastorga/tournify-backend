@@ -7,13 +7,19 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       this.belongsTo(models.Team, {
         foreignKey: "team1",
+        as: "Team1", // Alias explícito para el equipo 1
       });
       this.belongsTo(models.Team, {
         foreignKey: "team2",
+        as: "Team2", // Alias explícito para el equipo 2
       });
       this.belongsTo(models.Tournament, {
-        foreignKey: "tournamentId", // Usar `tournamentId` para la relación con `Tournament`
+        foreignKey: "tournamentId",
         as: "Tournament",
+      });
+      this.hasMany(models.Event, {
+        foreignKey: "matchId",
+        as: "Events",
       });
     }
   }
@@ -25,16 +31,11 @@ module.exports = (sequelize, DataTypes) => {
       team1: DataTypes.INTEGER,
       team2: DataTypes.INTEGER,
       result: DataTypes.STRING,
-      tournamentId: DataTypes.INTEGER, 
-      tournamentSlug: DataTypes.STRING, 
+      tournamentId: DataTypes.INTEGER,
       status: {
         type: DataTypes.STRING,
         allowNull: false,
         defaultValue: "Pendiente",
-      },
-      events: {
-        type: DataTypes.JSON,
-        defaultValue: [],
       },
     },
     {

@@ -7,14 +7,18 @@ const router = new Router();
 
 router.post("teams.create", "/", async (ctx) => {
   try {
-    const { name, representativeId, tournamentId } = ctx.request.body;
+    const { name, captainId, tournamentId } = ctx.request.body;
 
     if (!name) {
       ctx.throw(400, "Team name is required");
     }
-    const representative = await ctx.orm.User.findByPk(representativeId);
-    if (!representative) {
-      ctx.throw(404, "Representative not found");
+    const captain = await ctx.orm.User.findByPk(captainId);
+    if (!captain) {
+      ctx.throw(404, "Captain not found");
+    }
+
+    if (captain.role !== "Capitan") {
+      ctx.throw(400, "User is not a captain");
     }
 
     const tournament = await ctx.orm.Tournament.findByPk(tournamentId);
@@ -73,11 +77,12 @@ router.get("teams.players", "/:id/players", async (ctx) => {
       include: [
         {
           model: ctx.orm.Player,
-          as: "Players", 
+          as: "Players",
+          attributes: ["id", "goals", "teamId", "userId"], // Incluye explícitamente los atributos de Player
           include: [
             {
               model: ctx.orm.User,
-              attributes: ["id", "name", "email"], 
+              attributes: ["id", "name", "email"], // Atributos del usuario
             },
           ],
         },
@@ -88,9 +93,15 @@ router.get("teams.players", "/:id/players", async (ctx) => {
       ctx.throw(404, "Team not found");
     }
 
-    ctx.body = team.Players.map((player) => player.User); 
+    ctx.body = team.Players.map((player) => ({
+      id: player.User.id,
+      name: player.User.name,
+      email: player.User.email,
+      goals: player.goals || 0, // Aseguramos que se incluya la columna `goals`
+    }));
     ctx.status = 200;
   } catch (error) {
+    console.log(error);
     ctx.throw(400, error);
   }
 });
@@ -129,7 +140,7 @@ router.patch("teams.update", "/:id", async (ctx) => {
 
     await team.update(ctx.request.body);
 
-    ctx.body = team;  
+    ctx.body = team;
     ctx.status = 200;
   } catch (error) {
     ctx.throw(400, error);
@@ -168,9 +179,21 @@ router.get("teams.by_captain", "/captain/:user_id", async (ctx) => {
       ctx.throw(404, "Team not found for this captain");
     }
 
-    ctx.body = team;
+    // Transform Players to include goals
+    const teamWithGoals = {
+      ...team.toJSON(),
+      Players: team.Players.map((player) => ({
+        id: player.User.id,
+        name: player.User.name,
+        email: player.User.email,
+        goals: player.goals || 0, // Include `goals` attribute from Player
+      })),
+    };
+
+    ctx.body = teamWithGoals;
     ctx.status = 200;
   } catch (error) {
+    console.log(error);
     ctx.throw(400, error);
   }
 });
@@ -200,47 +223,58 @@ router.post("teams.remove_player", "/remove_player", async (ctx) => {
 });
 
 router.get("teams.by_tournament_slug", "/tournamentSlug/:slug", async (ctx) => {
-    try {
-        const slug = ctx.params.slug;
-        console.log("ID", slug);
-        const tournament = await ctx.orm.Tournament.findOne({ where: { id: slug } });
-        if (!tournament) {
-            ctx.throw(404, "Tournament not found");
-        }
-        const teams = await ctx.orm.Team.findAll({
-            where: { tournamentId: tournament.id },
-        });
-        console.log(teams);
-
-        ctx.body = teams;
-        ctx.status = 200;
-    } catch (error) {
-        ctx.throw(400, error);
+  try {
+    const slug = ctx.params.slug;
+    console.log("ID", slug);
+    const tournament = await ctx.orm.Tournament.findOne({
+      where: { id: slug },
+    });
+    if (!tournament) {
+      ctx.throw(404, "Tournament not found");
     }
+    const teams = await ctx.orm.Team.findAll({
+      where: { tournamentId: tournament.id },
+    });
+    console.log(teams);
+
+    ctx.body = teams;
+    ctx.status = 200;
+  } catch (error) {
+    ctx.throw(400, error);
+  }
 });
 
-router.get("teams.byTournamentSlug", "/tournamentSlug/accepted/:slug", async (ctx) => {
+router.get(
+  "teams.byTournamentSlug",
+  "/tournamentSlug/accepted/:slug",
+  async (ctx) => {
     try {
-        const { slug } = ctx.params;
-        const tournament = await ctx.orm.Tournament.findOne({ where: { id: slug } });
-        if (!tournament) {
-            ctx.throw(404, "Tournament not found");
-        }
-        const acceptedRegistrations = await ctx.orm.TeamRegistration.findAll({
-            where: {
-                tournamentSlug: slug,
-                status: "Aceptado",
-            },
-        });
-        const teamIds = acceptedRegistrations.map((reg) => reg.teamId);
-        const teams = await ctx.orm.Team.findAll({
-            where: { id: teamIds },
-        });
-        ctx.body = teams;
-        ctx.status = 200;
+      const { slug } = ctx.params;
+      const tournament = await ctx.orm.Tournament.findOne({
+        where: { id: slug },
+      });
+      if (!tournament) {
+        ctx.throw(404, "Tournament not found");
+      }
+      const acceptedRegistrations = await ctx.orm.TeamRegistration.findAll({
+        where: {
+          tournamentSlug: slug,
+          status: "Aceptado",
+        },
+      });
+      const teamIds = acceptedRegistrations.map((reg) => reg.teamId);
+      const teams = await ctx.orm.Team.findAll({
+        where: { id: teamIds },
+      });
+      ctx.body = teams;
+      ctx.status = 200;
     } catch (error) {
-        ctx.throw(400, `Error fetching accepted teams by tournament: ${error.message}`);
+      ctx.throw(
+        400,
+        `Error fetching accepted teams by tournament: ${error.message}`
+      );
     }
-});
+  }
+);
 
 module.exports = router;

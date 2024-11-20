@@ -55,32 +55,67 @@ router.get("matches.list", "/", async (ctx) => {
 
 router.get("matches.show", "/:id", async (ctx) => {
   try {
-    const match = await ctx.orm.Match.findByPk(ctx.params.id);
+    const match = await ctx.orm.Match.findByPk(ctx.params.id, {
+      include: [
+        {
+          model: ctx.orm.Event,
+          as: "Events",
+          include: [
+            {
+              model: ctx.orm.Player,
+              as: "Player",
+              include: [
+                {
+                  model: ctx.orm.User,
+                  attributes: ["id", "name", "email"],
+                },
+              ],
+            },
+            {
+              model: ctx.orm.Team,
+              as: "Team",
+              attributes: ["id", "name"],
+            },
+          ],
+        },
+        {
+          model: ctx.orm.Team,
+          as: "Team1", // Usar el alias definido para el equipo 1
+          attributes: ["id", "name"],
+        },
+        {
+          model: ctx.orm.Team,
+          as: "Team2", // Usar el alias definido para el equipo 2
+          attributes: ["id", "name"],
+        },
+      ],
+    });
+
     if (!match) {
-      ctx.throw(404);
-    }
-    ctx.body = match;
-    ctx.status = 200;
-  } catch (error) {
-    ctx.throw(400, error);
-  }
-});
-
-router.get("matches.byTournamentSlug", "/tournament/:slug", async (ctx) => {
-  try {
-    const id = ctx.params.slug;
-    console.log("ID", id);
-
-    const tournament = await ctx.orm.Tournament.findOne({ where: { id: id } });
-    if (!tournament) {
-      ctx.throw(404, "Tournament not found");
+      ctx.throw(404, "Match not found");
     }
 
-    const matches = await ctx.orm.Match.findAll({ where: { tournamentId: tournament.id } });
-    ctx.body = matches;
-    console.log("MATCHES", matches);
+    const plainMatch = match.toJSON();
+
+    // Transformar los eventos para incluir solo los detalles relevantes
+    plainMatch.Events = plainMatch.Events.map((event) => ({
+      id: event.id,
+      type: event.type,
+      minute: event.minute,
+      team: event.Team ? { id: event.Team.id, name: event.Team.name } : null,
+      player: event.Player
+        ? {
+            id: event.Player.User.id,
+            name: event.Player.User.name,
+            email: event.Player.User.email,
+          }
+        : null,
+    }));
+
+    ctx.body = plainMatch;
     ctx.status = 200;
   } catch (error) {
+    console.error(error);
     ctx.throw(400, error);
   }
 });
@@ -129,69 +164,53 @@ router.patch("matches.update", "/:id", async (ctx) => {
   }
 });
 
-router.post("matches.add_event", "/:match_id/add_event", async (ctx) => {
+router.post("matches.add_event", "/:id/add_event", async (ctx) => {
   try {
-    const { match_id } = ctx.params;
-    const { minute, type, player, team } = ctx.request.body;
+    const { id: matchId } = ctx.params;
+    const { type, minute, playerId, teamId } = ctx.request.body;
 
-    const match = await ctx.orm.Match.findByPk(match_id);
+    // Verificar que el partido exista
+    const match = await ctx.orm.Match.findByPk(matchId);
     if (!match) {
       ctx.throw(404, "Match not found");
     }
 
-    if (minute === undefined || !type || !player || !team) {
-      ctx.throw(
-        400,
-        "Fields 'minute', 'type', 'player', and 'team' are required"
-      );
+    // Verificar que el jugador exista
+    const player = await ctx.orm.Player.findByPk(playerId);
+    if (!player) {
+      ctx.throw(404, "Player not found");
     }
 
-    const newEvent = {
-      minute,
+    // Verificar que el equipo exista
+    const team = await ctx.orm.Team.findByPk(teamId);
+    if (!team) {
+      ctx.throw(404, "Team not found");
+    }
+
+    // Crear el evento
+    const event = await ctx.orm.Event.create({
       type,
-      player,
-      team,
-    };
+      minute,
+      matchId,
+      playerId,
+      teamId,
+    });
 
-    const events = match.events || [];
-    events.push(newEvent);
-
-    console.log("EVENTS", events);
-
-    match.events = events;
-
-    console.log("MATCH", match);
-
-    // await match.save();
-
-    await ctx.orm.Match.update(
-      { events }, // este es el array actualizado
-      { where: { id: match_id } }
-    );
-
-    console.log("MATCH AFTER SAVE", match);
-
-    ctx.body = { message: "Event added to match", match };
-    ctx.status = 200;
-  } catch (error) {
-    ctx.throw(400, error);
-  }
-});
-
-
-router.put("matches.update", "/:id", async (ctx) => {
-  try {
-    const match = await ctx.orm.Match.findByPk(ctx.params.id);
-    if (!match) {
-      ctx.throw(404, "Match not found");
+    // Si el evento es un gol, incrementar los goles del jugador
+    if (type.toLowerCase() === "gol") {
+      player.goals += 1;
+      await player.save();
     }
-    const updatedMatch = await match.update(ctx.request.body);
-    ctx.body = updatedMatch;
-    ctx.status = 200;
+
+    ctx.body = {
+      message: "Event added successfully",
+      event,
+    };
+    ctx.status = 201;
   } catch (error) {
+    console.log(error);
     ctx.throw(400, error);
   }
 });
-
 
 module.exports = router;
