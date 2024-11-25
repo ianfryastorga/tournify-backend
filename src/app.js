@@ -10,7 +10,7 @@ const app = new Koa();
 app.context.orm = orm;
 app.use(cors({
   origin: '*', // Cambia esto al origen específico si necesitas restringirlo
-  allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
   allowHeaders: ['Content-Type', 'Authorization']
 }));
 app.use(koaLogger());
