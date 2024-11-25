@@ -10,56 +10,46 @@ const router = new Router();
 router.post('authentication.signup', '/signup', async (ctx) => {
   const authInfo = ctx.request.body;
 
-  let user = await ctx.orm.User.findOne({ where: { email: authInfo.email } });
-
-  if (user) {
+  const existingUser = await ctx.orm.User.findOne({ where: { email: authInfo.email } });
+  if (existingUser) {
     ctx.body = { error: `Mail '${authInfo.email}' already in use` };
     ctx.status = 400;
     return;
   }
-  
-  // Validamos que el password cumpla con los requisitos
-  if (!authInfo.password.match(/[a-z]/) || !authInfo.password.match(/[A-Z]/) || !authInfo.password.match(/[0-9]/) || !authInfo.password.match(/[@_.$!%*?&]/)) {
-    ctx.body = { error: 'Password must contain at least 1 lowercase letter, 1 uppercase letter, 1 number and 1 special character (@_.$!%*?&)' };
+
+  const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[@_.$!%*?&]).{8,}$/;
+  if (!passwordRegex.test(authInfo.password)) {
+    ctx.body = { 
+      error: 'Password must contain at least 8 characters, 1 lowercase letter, 1 uppercase letter, 1 number, and 1 special character (@_.$!%*?&)'
+    };
     ctx.status = 400;
     return;
   }
-  console.log(authInfo);
+
   try {
-    console.log("1");
-    const saltRounds = parseInt(process.env.SALT_ROUNDS, 10);
-    console.log(saltRounds);
-    console.log("2");
-    
-    let hashPassword;
-    try {
-      hashPassword = await bcrypt.hash(authInfo.password, saltRounds);
-    } catch (error) {
-      ctx.throw(500, 'Error hashing password');
-    }
+    const saltRounds = parseInt(process.env.SALT_ROUNDS, 10) || 10; // Valor predeterminado de 10 si no se configura
+    const hashPassword = await bcrypt.hash(authInfo.password, saltRounds);
 
-    console.log("3");
-    console.log(hashPassword);
-
-    user = await ctx.orm.User.create({
+    const user = await ctx.orm.User.create({
       email: authInfo.email,
       password: hashPassword,
       name: authInfo.name,
       gender: authInfo.gender,
       role: authInfo.role,
     });
-  } catch (validationError) {
-    console.log(validationError);
-    ctx.body = validationError;
-    ctx.status = 400;
-    return;
+
+    ctx.body = {
+      userId: user.id,
+      email: user.email, // Asegúrate de usar "email" y no "mail"
+    };
+    ctx.status = 201;
+  } catch (error) {
+    console.error('Error creating user:', error);
+    ctx.body = { error: 'Error creating user' };
+    ctx.status = 500;
   }
-  ctx.body = {
-    userId: user.id,
-    mail: user.mail,
-  };
-  ctx.status = 201;
 });
+
 
 router.post('authentication', '/login', async (ctx) => {
   let user;
@@ -90,12 +80,14 @@ router.post('authentication', '/login', async (ctx) => {
   }
   // Creamos el JWT
   const expirationTime = 1 * 60 * 60 * 24; // 1 dia
-  const JTW_PRIVATE_KEY = process.env.JWT_SECRET;
+  const JWT_PRIVATE_KEY = process.env.JWT_SECRET;
   const token = jwt.sign(
     { scope: ['user'] },
-    JTW_PRIVATE_KEY,
-    { subject: user.id.toString() },
-    { expiresIn: expirationTime },
+    JWT_PRIVATE_KEY,
+    {
+      subject: user.id.toString(),
+      expiresIn: expirationTime,
+    }
   );
   ctx.body = {
     userId: user.id,
@@ -105,5 +97,6 @@ router.post('authentication', '/login', async (ctx) => {
   };
   ctx.status = 200;
 });
+
 
 module.exports = router;

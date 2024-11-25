@@ -147,18 +147,27 @@ router.patch("teams.update", "/:id", async (ctx) => {
   }
 });
 
+
 router.get("teams.by_captain", "/captain/:user_id", async (ctx) => {
   try {
     const { user_id } = ctx.params;
 
+    // Buscar el usuario por ID
     const user = await ctx.orm.User.findByPk(user_id);
     if (!user) {
-      ctx.throw(404, "User not found");
-    }
-    if (user.role !== "Capitan") {
-      ctx.throw(400, "User is not a captain");
+      ctx.status = 201;
+      ctx.body = { message: "User not found" };
+      return;
     }
 
+    // Verificar si el usuario es un capitán
+    if (user.role !== "Capitan") {
+      ctx.status = 201;
+      ctx.body = { message: "User is not a captain" };
+      return;
+    }
+
+    // Buscar el equipo asociado al capitán
     const team = await ctx.orm.Team.findOne({
       where: { captainId: user_id },
       include: [
@@ -176,25 +185,27 @@ router.get("teams.by_captain", "/captain/:user_id", async (ctx) => {
     });
 
     if (!team) {
-      ctx.throw(404, "Team not found for this captain");
+      ctx.status = 201;
+      ctx.body = { message: "Team not found for this captain" };
+      return;
     }
 
-    // Transform Players to include goals
+    // Transformar los datos del equipo para incluir goles
     const teamWithGoals = {
       ...team.toJSON(),
       Players: team.Players.map((player) => ({
         id: player.User.id,
         name: player.User.name,
         email: player.User.email,
-        goals: player.goals || 0, // Include `goals` attribute from Player
+        goals: player.goals || 0, // Incluir el atributo `goals` de Player
       })),
     };
 
-    ctx.body = teamWithGoals;
     ctx.status = 200;
+    ctx.body = teamWithGoals;
   } catch (error) {
-    console.log(error);
-    ctx.throw(400, error);
+    console.error(error);
+    ctx.throw(400, { message: "An error occurred", error: error.message });
   }
 });
 
