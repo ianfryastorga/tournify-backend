@@ -86,8 +86,15 @@ router.get("tournaments.list", "/", async (ctx) => {
   }
 });
 
+
 router.get("tournaments.show", "/:id", async (ctx) => {
   try {
+    const tournamentExist = await ctx.orm.Tournament.findByPk(ctx.params.id);
+    if (!tournamentExist) {
+      ctx.status = 201;
+      ctx.message = "Tournament not found";
+      return;
+    }
     const tournament = await ctx.orm.Tournament.findByPk(ctx.params.id, {
       attributes: {
         exclude: ["organizer"],
@@ -144,12 +151,23 @@ router.get("tournaments.show", "/:id", async (ctx) => {
       ],
     });
 
-    if (!tournament) {
-      ctx.throw(404);
-    }
-
     const plainTournament = tournament.toJSON();
 
+    // Si faltan equipos, jugadores o partidos, se asignan arrays vacíos
+    plainTournament.Teams = plainTournament.Teams || [];
+    plainTournament.Matches = plainTournament.Matches || [];
+
+    plainTournament.Teams = plainTournament.Teams.map((team) => ({
+      ...team,
+      Players: team.Players || [], // Si no tiene jugadores, asignamos un array vacío
+    }));
+
+    plainTournament.Matches = plainTournament.Matches.map((match) => ({
+      ...match,
+      Events: match.Events || [], // Si no tiene eventos, asignamos un array vacío
+    }));
+
+    // Mapear los jugadores y eventos como se hacía antes
     plainTournament.Teams = plainTournament.Teams.map((team) => ({
       ...team,
       Players: team.Players.map((player) => ({
@@ -170,22 +188,24 @@ router.get("tournaments.show", "/:id", async (ctx) => {
         team: event.Team ? { id: event.Team.id, name: event.Team.name } : null,
         player: event.Player
           ? {
-              id: event.Player.User.id,
-              name: event.Player.User.name,
-              email: event.Player.User.email,
-              role: event.Player.User.role,
-            }
+            id: event.Player.User.id,
+            name: event.Player.User.name,
+            email: event.Player.User.email,
+            role: event.Player.User.role,
+          }
           : null,
       })),
     }));
 
     ctx.body = plainTournament;
     ctx.status = 200;
+
   } catch (error) {
     console.log(error);
-    ctx.throw(400, error);
+    ctx.throw(400, "An error occurred while processing the request");
   }
 });
+
 
 router.patch("tournaments.update", "/:id", async (ctx) => {
   try {
