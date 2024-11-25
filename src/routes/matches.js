@@ -172,10 +172,12 @@ router.patch("matches.update", "/:id", async (ctx) => {
   }
 });
 
+
 router.post("matches.add_event", "/:id/add_event", async (ctx) => {
   try {
+    console.log(ctx.request.body);
     const { id: matchId } = ctx.params;
-    const { type, minute, playerId, teamId } = ctx.request.body;
+    const { type, minute, player, team } = ctx.request.body;
 
     // Verificar que el partido exista
     const match = await ctx.orm.Match.findByPk(matchId);
@@ -183,16 +185,23 @@ router.post("matches.add_event", "/:id/add_event", async (ctx) => {
       ctx.throw(404, "Match not found");
     }
 
-    // Verificar que el jugador exista
-    const player = await ctx.orm.Player.findByPk(playerId);
-    if (!player) {
+    // Buscar el equipo por su nombre
+    const teamObj = await ctx.orm.Team.findOne({ where: { name: team } });
+    if (!teamObj) {  // Verificar que el equipo exista
+      ctx.throw(404, "Team not found");
+    }
+    const teamId = teamObj.id;  // Obtener el teamId
+
+    // Buscar el jugador por su nombre
+    const player_obj = await ctx.orm.User.findOne({ where: { name: player } });
+    if (!player_obj) {  // Verificar que el jugador exista
       ctx.throw(404, "Player not found");
     }
 
-    // Verificar que el equipo exista
-    const team = await ctx.orm.Team.findByPk(teamId);
-    if (!team) {
-      ctx.throw(404, "Team not found");
+    // Buscar al jugador en el equipo
+    const playerInTeam = await ctx.orm.Player.findOne({ where: { userId: player_obj.id, teamId } });
+    if (!playerInTeam) {  // Verificar que el jugador esté en el equipo
+      ctx.throw(404, "Player not found in team");
     }
 
     // Crear el evento
@@ -200,16 +209,17 @@ router.post("matches.add_event", "/:id/add_event", async (ctx) => {
       type,
       minute,
       matchId,
-      playerId,
-      teamId,
+      playerId: playerInTeam.id,  // Usar playerInTeam.id en lugar de playerInTeam
+      teamId,  // Usar teamId
     });
 
     // Si el evento es un gol, incrementar los goles del jugador
     if (type.toLowerCase() === "gol") {
-      player.goals += 1;
-      await player.save();
+      playerInTeam.goals += 1;  // Incrementar los goles
+      await playerInTeam.save();
     }
 
+    // Responder con el evento creado
     ctx.body = {
       message: "Event added successfully",
       event,
@@ -220,5 +230,8 @@ router.post("matches.add_event", "/:id/add_event", async (ctx) => {
     ctx.throw(400, error);
   }
 });
+
+
+
 
 module.exports = router;
