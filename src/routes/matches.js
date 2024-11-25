@@ -7,7 +7,7 @@ const router = new Router();
 
 router.post("matches.create", "/", async (ctx) => {
   try {
-    const { date, time, team1, team2, tournamentId } = ctx.request.body;
+    const { date, time, team1, team2, tournamentId, result, status } = ctx.request.body;
 
     if (!date || !time || !team1 || !team2 || !tournamentId) {
       ctx.throw(
@@ -20,12 +20,12 @@ router.post("matches.create", "/", async (ctx) => {
       ctx.throw(400, "Teams must be different for a match");
     }
 
-    const teamOne = await ctx.orm.Team.findByPk(team1);
+    const teamOne = await ctx.orm.Team.findOne({ where: { name: team1 } });
     if (!teamOne) {
       ctx.throw(404, "Team 1 not found");
     }
 
-    const teamTwo = await ctx.orm.Team.findByPk(team2);
+    const teamTwo = await ctx.orm.Team.findOne({ where: { name: team2 } });
     if (!teamTwo) {
       ctx.throw(404, "Team 2 not found");
     }
@@ -35,7 +35,15 @@ router.post("matches.create", "/", async (ctx) => {
       ctx.throw(404, "Tournament not found");
     }
 
-    const match = await ctx.orm.Match.create(ctx.request.body);
+    const match = await ctx.orm.Match.create({
+      date,
+      time,
+      team1: teamOne.id,
+      team2: teamTwo.id,
+      tournamentId,
+      result,
+      status,
+    });
     ctx.body = match;
     ctx.status = 201;
   } catch (error) {
@@ -105,10 +113,10 @@ router.get("matches.show", "/:id", async (ctx) => {
       team: event.Team ? { id: event.Team.id, name: event.Team.name } : null,
       player: event.Player
         ? {
-            id: event.Player.User.id,
-            name: event.Player.User.name,
-            email: event.Player.User.email,
-          }
+          id: event.Player.User.id,
+          name: event.Player.User.name,
+          email: event.Player.User.email,
+        }
         : null,
     }));
 
