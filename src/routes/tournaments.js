@@ -152,6 +152,7 @@ router.get("tournaments.show", "/:id", async (ctx) => {
     });
 
     const plainTournament = tournament.toJSON();
+    console.log(plainTournament);
 
     // Si faltan equipos, jugadores o partidos, se asignan arrays vacíos
     plainTournament.Teams = plainTournament.Teams || [];
