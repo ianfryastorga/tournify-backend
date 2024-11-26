@@ -1,3 +1,5 @@
+// matches.js
+
 const Router = require("koa-router");
 const dotenv = require("dotenv");
 
@@ -5,6 +7,7 @@ dotenv.config();
 
 const router = new Router();
 
+// Create a new match
 router.post("matches.create", "/", async (ctx) => {
   try {
     const { date, time, team1, team2, tournamentId, result, status } = ctx.request.body;
@@ -51,6 +54,7 @@ router.post("matches.create", "/", async (ctx) => {
   }
 });
 
+// List all matches
 router.get("matches.list", "/", async (ctx) => {
   try {
     const matches = await ctx.orm.Match.findAll();
@@ -61,6 +65,7 @@ router.get("matches.list", "/", async (ctx) => {
   }
 });
 
+// Get match by ID
 router.get("matches.show", "/:id", async (ctx) => {
   try {
     const match = await ctx.orm.Match.findByPk(ctx.params.id, {
@@ -88,12 +93,12 @@ router.get("matches.show", "/:id", async (ctx) => {
         },
         {
           model: ctx.orm.Team,
-          as: "Team1", // Usar el alias definido para el equipo 1
+          as: "Team1", // Alias for team1
           attributes: ["id", "name"],
         },
         {
           model: ctx.orm.Team,
-          as: "Team2", // Usar el alias definido para el equipo 2
+          as: "Team2", // Alias for team2
           attributes: ["id", "name"],
         },
       ],
@@ -105,19 +110,20 @@ router.get("matches.show", "/:id", async (ctx) => {
 
     const plainMatch = match.toJSON();
 
-    // Transformar los eventos para incluir solo los detalles relevantes
+    // Transform events to include only relevant details
     plainMatch.Events = plainMatch.Events.map((event) => ({
       id: event.id,
       type: event.type,
       minute: event.minute,
       team: event.Team ? { id: event.Team.id, name: event.Team.name } : null,
-      player: event.Player
+      player: event.Player && event.Player.User
         ? {
-          id: event.Player.User.id,
-          name: event.Player.User.name,
-          email: event.Player.User.email,
-        }
+            id: event.Player.User.id,
+            name: event.Player.User.name,
+            email: event.Player.User.email,
+          }
         : null,
+      detail: event.detail,
     }));
 
     ctx.body = plainMatch;
@@ -128,6 +134,7 @@ router.get("matches.show", "/:id", async (ctx) => {
   }
 });
 
+// Update match
 router.patch("matches.update", "/:id", async (ctx) => {
   try {
     const matchId = ctx.params.id;
@@ -168,68 +175,60 @@ router.patch("matches.update", "/:id", async (ctx) => {
     ctx.body = match;
     ctx.status = 200;
   } catch (error) {
+    console.log("Error in match update:", error);
     ctx.throw(400, error);
   }
 });
 
-
+// Add event to match without verifications
 router.post("matches.add_event", "/:id/add_event", async (ctx) => {
   try {
-    console.log(ctx.request.body);
+    console.log("Request body:", ctx.request.body);
     const { id: matchId } = ctx.params;
-    const { type, minute, player, team } = ctx.request.body;
+    const { type, minute, player, team, detail } = ctx.request.body;
 
-    // Verificar que el partido exista
+    // Verify that the match exists
     const match = await ctx.orm.Match.findByPk(matchId);
     if (!match) {
       ctx.throw(404, "Match not found");
     }
 
-    // Buscar el equipo por su nombre
+    // Attempt to find the team by name
+    let teamId = null;
     const teamObj = await ctx.orm.Team.findOne({ where: { name: team } });
-    if (!teamObj) {  // Verificar que el equipo exista
-      ctx.throw(404, "Team not found");
-    }
-    const teamId = teamObj.id;  // Obtener el teamId
-
-    // Buscar el jugador por su nombre
-    const player_obj = await ctx.orm.User.findOne({ where: { name: player } });
-    if (!player_obj) {  // Verificar que el jugador exista
-      ctx.throw(404, "Player not found");
+    if (teamObj) {
+      teamId = teamObj.id;
     }
 
-    // Buscar al jugador en el equipo
-    const playerInTeam = await ctx.orm.Player.findOne({ where: { userId: player_obj.id, teamId } });
-    if (!playerInTeam) {  // Verificar que el jugador esté en el equipo
-      ctx.throw(404, "Player not found in team");
+    // Attempt to find the player by name
+    let playerId = null;
+    const playerObj = await ctx.orm.User.findOne({ where: { name: player } });
+    if (playerObj) {
+      playerId = playerObj.id;
     }
 
-    // Crear el evento
+    // Create the event without additional verifications
     const event = await ctx.orm.Event.create({
       type,
       minute,
       matchId,
-      playerId: playerInTeam.id,  // Usar playerInTeam.id en lugar de playerInTeam
-      teamId,  // Usar teamId
+      playerId: playerId, // May be null
+      teamId: teamId,     // May be null
+      detail,
     });
 
-    // Si el evento es un gol, incrementar los goles del jugador
-    if (type.toLowerCase() === "gol") {
-      playerInTeam.goals += 1;  // Incrementar los goles
-      await playerInTeam.save();
-    }
+    // Omit any additional logic like incrementing goals
 
-    // Responder con el evento creado
+    // Respond with the created event
     ctx.body = {
       message: "Event added successfully",
       event,
     };
     ctx.status = 201;
   } catch (error) {
-    console.log(error);
-    ctx.throw(400, error);
+    console.error("Error in add_event:", error);
+    ctx.throw(400, error.message || "An error occurred");
   }
 });
-
 
 module.exports = router;
