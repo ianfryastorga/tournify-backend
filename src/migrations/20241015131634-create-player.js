@@ -12,14 +12,19 @@ module.exports = {
       teamId: {
         type: Sequelize.INTEGER,
         references: { model: "Teams", key: "id" },
+        onUpdate: "CASCADE",
+        onDelete: "CASCADE",
       },
       userId: {
         type: Sequelize.INTEGER,
         references: { model: "Users", key: "id" },
+        onUpdate: "CASCADE",
+        onDelete: "CASCADE",
       },
-      tournamentSlug: {
-        type: Sequelize.STRING,
-        references: { model: "Tournaments", key: "slug" },
+      goals: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        defaultValue: 0,
       },
       createdAt: {
         allowNull: false,
@@ -31,6 +36,7 @@ module.exports = {
       },
     });
   },
+
   async down(queryInterface, Sequelize) {
     await queryInterface.dropTable("Players");
   },

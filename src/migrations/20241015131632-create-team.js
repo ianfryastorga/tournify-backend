@@ -14,15 +14,21 @@ module.exports = {
       },
       captainId: {
         type: Sequelize.INTEGER,
-        references: { model: "Users", key: "id" },
-      },
-      representativeId: {
-        type: Sequelize.INTEGER,
-        references: { model: "Users", key: "id" },
+        references: {
+          model: "Users",
+          key: "id",
+        },
+        onUpdate: "CASCADE",
+        onDelete: "SET NULL",
       },
       tournamentId: {
         type: Sequelize.INTEGER,
-        references: { model: "Tournaments", key: "id" },
+        references: {
+          model: "Tournaments",
+          key: "id",
+        },
+        onUpdate: "CASCADE",
+        onDelete: "SET NULL",
       },
       points: {
         type: Sequelize.INTEGER,
@@ -55,11 +61,6 @@ module.exports = {
       goalDifference: {
         type: Sequelize.INTEGER,
         defaultValue: 0,
-      },
-      tournamentSlug: {
-        type: Sequelize.STRING,
-        allowNull: false,
-        references: { model: "Tournaments", key: "slug" },
       },
       createdAt: {
         allowNull: false,

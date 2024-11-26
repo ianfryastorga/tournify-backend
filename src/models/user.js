@@ -1,4 +1,3 @@
-// User.js
 "use strict";
 const { Model } = require("sequelize");
 
@@ -10,8 +9,8 @@ module.exports = (sequelize, DataTypes) => {
         as: "OrganizedTournaments",
       });
       this.hasMany(models.Team, {
-        foreignKey: "representativeId",
-        as: "RepresentedTeams",
+        foreignKey: "captainId",
+        as: "CaptainedTeams", // Relación ajustada
       });
       this.hasMany(models.Notification, {
         foreignKey: "userId",

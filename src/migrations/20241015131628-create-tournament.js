@@ -13,7 +13,7 @@ module.exports = {
         type: Sequelize.STRING,
       },
       date: {
-        type: Sequelize.DATEONLY, // Usamos DATEONLY para solo almacenar la fecha.
+        type: Sequelize.DATEONLY,
       },
       location: {
         type: Sequelize.STRING,
@@ -30,17 +30,13 @@ module.exports = {
       description: {
         type: Sequelize.STRING,
       },
-      slug: {
-        type: Sequelize.STRING,
-        unique: true,
-      },
       image: {
         type: Sequelize.STRING,
       },
       organizer: {
         type: Sequelize.INTEGER,
         references: {
-          model: "Users", 
+          model: "Users",
           key: "id",
         },
         onUpdate: "CASCADE",

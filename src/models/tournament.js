@@ -1,4 +1,3 @@
-// Tournament.js
 "use strict";
 const { Model } = require("sequelize");
 
@@ -14,7 +13,7 @@ module.exports = (sequelize, DataTypes) => {
         as: "Teams",
       });
       this.hasMany(models.Match, {
-        foreignKey: "tournamentId", // Cambia a `tournamentId` en lugar de `tournamentSlug`
+        foreignKey: "tournamentId",
         as: "Matches",
       });
     }
@@ -29,9 +28,11 @@ module.exports = (sequelize, DataTypes) => {
       rol: DataTypes.STRING,
       classification: DataTypes.STRING,
       description: DataTypes.STRING,
-      slug: DataTypes.STRING, 
       image: DataTypes.STRING,
-      organizer: DataTypes.INTEGER,
+      organizer: {
+        type: DataTypes.INTEGER,
+        references: { model: "Users", key: "id" },
+      },
     },
     {
       sequelize,

@@ -2,47 +2,45 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable("Matches", {
+    await queryInterface.createTable("Events", {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER,
       },
-      date: {
-        type: Sequelize.DATEONLY,
-      },
-      time: {
-        type: Sequelize.TIME,
-      },
-      team1: {
-        type: Sequelize.INTEGER,
-        references: { model: "Teams", key: "id" },
-        onUpdate: "CASCADE",
-        onDelete: "SET NULL",
-      },
-      team2: {
-        type: Sequelize.INTEGER,
-        references: { model: "Teams", key: "id" },
-        onUpdate: "CASCADE",
-        onDelete: "SET NULL",
-      },
-      result: {
+      type: {
         type: Sequelize.STRING,
       },
-      tournamentId: {
+      minute: {
+        type: Sequelize.INTEGER,
+      },
+      matchId: {
         type: Sequelize.INTEGER,
         references: {
-          model: "Tournaments",
+          model: "Matches",
+          key: "id",
+        },
+        onUpdate: "CASCADE",
+        onDelete: "CASCADE",
+      },
+      playerId: {
+        type: Sequelize.INTEGER,
+        references: {
+          model: "Players",
           key: "id",
         },
         onUpdate: "CASCADE",
         onDelete: "SET NULL",
       },
-      status: {
-        type: Sequelize.STRING,
-        allowNull: false,
-        defaultValue: "Pendiente",
+      teamId: {
+        type: Sequelize.INTEGER,
+        references: {
+          model: "Teams",
+          key: "id",
+        },
+        onUpdate: "CASCADE",
+        onDelete: "SET NULL",
       },
       createdAt: {
         allowNull: false,
@@ -54,8 +52,7 @@ module.exports = {
       },
     });
   },
-
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable("Matches");
+    await queryInterface.dropTable("Events");
   },
 };
