@@ -7,65 +7,41 @@ dotenv.config();
 
 const router = new Router();
 
-// Create a new match
+// Crear un nuevo partido
 router.post("matches.create", "/", async (ctx) => {
   try {
     const { date, time, team1, team2, tournamentId, result, status } = ctx.request.body;
 
-    if (!date || !time || !team1 || !team2 || !tournamentId) {
-      ctx.throw(
-        400,
-        "All fields (date, time, team1, team2, tournamentId) are required"
-      );
-    }
-
-    if (team1 === team2) {
-      ctx.throw(400, "Teams must be different for a match");
-    }
-
-    const teamOne = await ctx.orm.Team.findOne({ where: { name: team1 } });
-    if (!teamOne) {
-      ctx.throw(404, "Team 1 not found");
-    }
-
-    const teamTwo = await ctx.orm.Team.findOne({ where: { name: team2 } });
-    if (!teamTwo) {
-      ctx.throw(404, "Team 2 not found");
-    }
-
-    const tournament = await ctx.orm.Tournament.findByPk(tournamentId);
-    if (!tournament) {
-      ctx.throw(404, "Tournament not found");
-    }
-
     const match = await ctx.orm.Match.create({
       date,
       time,
-      team1: teamOne.id,
-      team2: teamTwo.id,
-      tournamentId,
+      team1,         // Asumiendo que team1 es el ID del equipo 1
+      team2,         // Asumiendo que team2 es el ID del equipo 2
+      tournamentId,  // Asumiendo que tournamentId es el ID del torneo
       result,
       status,
     });
     ctx.body = match;
     ctx.status = 201;
   } catch (error) {
-    ctx.throw(400, error);
+    console.error("Error al crear el partido:", error);
+    ctx.throw(400, error.message || "Error al crear el partido");
   }
 });
 
-// List all matches
+// Listar todos los partidos
 router.get("matches.list", "/", async (ctx) => {
   try {
     const matches = await ctx.orm.Match.findAll();
     ctx.body = matches;
     ctx.status = 200;
   } catch (error) {
-    ctx.throw(400, error);
+    console.error("Error al listar los partidos:", error);
+    ctx.throw(400, error.message || "Error al listar los partidos");
   }
 });
 
-// Get match by ID
+// Obtener partido por ID
 router.get("matches.show", "/:id", async (ctx) => {
   try {
     const match = await ctx.orm.Match.findByPk(ctx.params.id, {
@@ -93,12 +69,12 @@ router.get("matches.show", "/:id", async (ctx) => {
         },
         {
           model: ctx.orm.Team,
-          as: "Team1", // Alias for team1
+          as: "Team1", // Alias para team1
           attributes: ["id", "name"],
         },
         {
           model: ctx.orm.Team,
-          as: "Team2", // Alias for team2
+          as: "Team2", // Alias para team2
           attributes: ["id", "name"],
         },
       ],
@@ -110,7 +86,7 @@ router.get("matches.show", "/:id", async (ctx) => {
 
     const plainMatch = match.toJSON();
 
-    // Transform events to include only relevant details
+    // Transformar eventos para incluir solo detalles relevantes
     plainMatch.Events = plainMatch.Events.map((event) => ({
       id: event.id,
       type: event.type,
@@ -129,105 +105,90 @@ router.get("matches.show", "/:id", async (ctx) => {
     ctx.body = plainMatch;
     ctx.status = 200;
   } catch (error) {
-    console.error(error);
-    ctx.throw(400, error);
+    console.error("Error al obtener el partido:", error);
+    ctx.throw(400, error.message || "Error al obtener el partido");
   }
 });
 
-// Update match
+// Actualizar partido
 router.patch("matches.update", "/:id", async (ctx) => {
   try {
     const matchId = ctx.params.id;
-    const { date, time, team1, team2, tournamentId } = ctx.request.body;
+    const { date, time, team1, team2, tournamentId, result, status } = ctx.request.body;
 
     const match = await ctx.orm.Match.findByPk(matchId);
     if (!match) {
       ctx.throw(404, "Match not found");
     }
 
-    if (team1 && team2 && team1 === team2) {
-      ctx.throw(400, "Teams must be different for a match");
-    }
+    // Actualizar solo los campos que están presentes en la solicitud
+    const updatedFields = {};
+    if (date !== undefined) updatedFields.date = date;
+    if (time !== undefined) updatedFields.time = time;
+    if (team1 !== undefined) updatedFields.team1 = team1;
+    if (team2 !== undefined) updatedFields.team2 = team2;
+    if (tournamentId !== undefined) updatedFields.tournamentId = tournamentId;
+    if (result !== undefined) updatedFields.result = result;
+    if (status !== undefined) updatedFields.status = status;
 
-    if (team1) {
-      const teamOne = await ctx.orm.Team.findByPk(team1);
-      if (!teamOne) {
-        ctx.throw(404, "Team 1 not found");
-      }
-    }
-
-    if (team2) {
-      const teamTwo = await ctx.orm.Team.findByPk(team2);
-      if (!teamTwo) {
-        ctx.throw(404, "Team 2 not found");
-      }
-    }
-
-    if (tournamentId) {
-      const tournament = await ctx.orm.Tournament.findByPk(tournamentId);
-      if (!tournament) {
-        ctx.throw(404, "Tournament not found");
-      }
-    }
-
-    await match.update(ctx.request.body);
+    await match.update(updatedFields);
 
     ctx.body = match;
     ctx.status = 200;
   } catch (error) {
-    console.log("Error in match update:", error);
-    ctx.throw(400, error);
+    console.log("Error al actualizar el partido:", error);
+    ctx.throw(400, error.message || "Error al actualizar el partido");
   }
 });
 
-// Add event to match without verifications
+// Agregar evento al partido sin validaciones
 router.post("matches.add_event", "/:id/add_event", async (ctx) => {
   try {
-    console.log("Request body:", ctx.request.body);
+    console.log("Evento a enviar:", ctx.request.body);
     const { id: matchId } = ctx.params;
     const { type, minute, player, team, detail } = ctx.request.body;
 
-    // Verify that the match exists
-    const match = await ctx.orm.Match.findByPk(matchId);
-    if (!match) {
-      ctx.throw(404, "Match not found");
-    }
-
-    // Attempt to find the team by name
-    let teamId = null;
-    const teamObj = await ctx.orm.Team.findOne({ where: { name: team } });
-    if (teamObj) {
-      teamId = teamObj.id;
-    }
-
-    // Attempt to find the player by name
+    // Asumimos que 'player' y 'team' son nombres, necesitamos encontrar sus IDs
     let playerId = null;
-    const playerObj = await ctx.orm.User.findOne({ where: { name: player } });
-    if (playerObj) {
-      playerId = playerObj.id;
+    let teamId = null;
+
+    if (player) {
+      const playerObj = await ctx.orm.User.findOne({ where: { name: player } });
+      if (playerObj) {
+        // Encontrar el Player asociado al User
+        const playerRecord = await ctx.orm.Player.findOne({ where: { userId: playerObj.id } });
+        if (playerRecord) {
+          playerId = playerRecord.id;
+        }
+      }
     }
 
-    // Create the event without additional verifications
+    if (team) {
+      const teamObj = await ctx.orm.Team.findOne({ where: { name: team } });
+      if (teamObj) {
+        teamId = teamObj.id;
+      }
+    }
+
+    // Crear el evento directamente con los datos proporcionados
     const event = await ctx.orm.Event.create({
       type,
       minute,
       matchId,
-      playerId: playerId, // May be null
-      teamId: teamId,     // May be null
+      playerId, // Puede ser null si no se encuentra
+      teamId,   // Puede ser null si no se encuentra
       detail,
     });
 
-    // Omit any additional logic like incrementing goals
-
-    // Respond with the created event
+    // Responder con el evento creado
     ctx.body = {
       message: "Event added successfully",
       event,
     };
     ctx.status = 201;
   } catch (error) {
-    console.error("Error in add_event:", error);
-    ctx.throw(400, error.message || "An error occurred");
+    console.error("Error al agregar el evento:", error);
+    ctx.throw(400, error.message || "Error al agregar el evento");
   }
 });
 
