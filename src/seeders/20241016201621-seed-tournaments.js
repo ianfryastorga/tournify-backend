@@ -1,0 +1,46 @@
+module.exports = {
+  up: (queryInterface) =>
+    queryInterface.bulkInsert("Tournaments", [
+      {
+        name: "Liga CAI UC",
+        date: "2024-06-15",
+        location: "Santiago, Chile",
+        state: "En curso",
+        rol: "Participante",
+        classification: "Universitario",
+        description: "Torneo Universitario Ingeniería UC",
+        image: "https://tournify-images.s3.us-east-2.amazonaws.com/liga_cai.png",
+        organizer: 3,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+      {
+        name: "UltraFutbol",
+        date: "2024-12-01",
+        location: "Santiago, Chile",
+        state: "Disponible",
+        rol: "Participante",
+        classification: "Amateur",
+        description: "Torneo corporativo CCU",
+        image: "https://tournify-images.s3.us-east-2.amazonaws.com/ultrapadel.jpg",
+        organizer: 3,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+      {
+        name: "Torneo Primavera",
+        date: "2024-09-20",
+        location: "Valparaíso, Chile",
+        state: "Disponible",
+        rol: "Administrador",
+        classification: "Semi-profesional",
+        description: "Competencia interuniversitaria de primavera",
+        image: "https://tournify-images.s3.us-east-2.amazonaws.com/torneo-primavera.png",
+        organizer: 3,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+    ]),
+
+  down: (queryInterface) => queryInterface.bulkDelete("Tournaments", null, {}),
+};

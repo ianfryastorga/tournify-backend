@@ -1,0 +1,30 @@
+version: "3.8"
+
+services:
+  api_movil:
+    container_name: api_movil
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.dev
+    environment:
+      NODE_ENV: development
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/app
+      - /app/node_modules
+    env_file:
+      - ./env/api_movil.env
+    depends_on:
+      - db_movil
+
+  db_movil:
+    container_name: db_movil
+    image: postgres:13
+    volumes:
+      - db_data_dev:/var/lib/postgresql/data
+    env_file:
+      - ./env/db_movil.env
+
+volumes:
+  db_data_dev:
